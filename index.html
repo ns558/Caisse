@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Caisse Enregistreuse</title>
+  <style>
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f6f8;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+    h1, h2 {
+      text-align: center;
+      color: #444;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    button {
+      margin: 8px 5px;
+      padding: 12px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      background-color: #4CAF50;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    .actions button {
+      background-color: #e53935;
+    }
+    .actions button:hover {
+      background-color: #d32f2f;
+    }
+    .paiement button {
+      background-color: #1976d2;
+    }
+    .paiement button:hover {
+      background-color: #1565c0;
+    }
+    input[type="number"] {
+      padding: 10px;
+      font-size: 16px;
+      width: 150px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      margin-right: 8px;
+    }
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+    li {
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+      font-size: 16px;
+    }
+    .panier-total {
+      font-size: 18px;
+      font-weight: bold;
+      margin-top: 15px;
+      text-align: center;
+      color: #333;
+    }
+    .paiement-info {
+      font-size: 18px;
+      font-weight: bold;
+      margin-top: 15px;
+      text-align: center;
+      color: #333;
+    }
+    .rendu {
+      color: #d32f2f;
+      margin-top: 8px;
+    }
+
+    .articles {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    .articles button {
+      width: 100%;
+      box-sizing: border-box;
+      text-align: left;
+    }
+
+    .consigne-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 15px;
+    }
+    .consigne-buttons button {
+      width: 140px;
+      background-color: #ff9800;
+    }
+    .consigne-buttons button:hover {
+      background-color: #fb8c00;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Caisse Enregistreuse</h1>
+
+    <div class="card commande">
+      <h2>Commande</h2>
+      <div class="articles">
+        <button onclick="ajouterArticle('Portion frites', 5)">Portion frites 5.-</button>
+        <button onclick="ajouterArticle('Saucisse pain', 6)">Saucisse pain 6.-</button>
+        <button onclick="ajouterArticle('Saucisse frites', 10)">Saucisse frites 10.-</button>
+        <button onclick="ajouterArticle('Roastbeef, frites', 22)">Roastbeef, frites 22.-</button>
+        <button onclick="ajouterArticle('Crêpe: jambon', 6)">Crêpe: jambon 6.-</button>
+        <button onclick="ajouterArticle('Crêpe: jambon - fromage', 7)">Crêpe: jambon - fromage 7.-</button>
+        <button onclick="ajouterArticle('Crêpe: sucre / sucre-cannelle', 5)">Crêpe: sucre / sucre-cannelle 5.-</button>
+        <button onclick="ajouterArticle('Crêpe: pâte à tartiner / confiture', 5)">Crêpe: pâte à tartiner / confiture 5.-</button>
+      </div>
+
+      <div class="consigne-buttons">
+        <button onclick="ajouterConsigne()">Consigne +2.-</button>
+        <button onclick="retirerConsigne()">Consigne -2.-</button>
+      </div>
+
+      <div class="actions" style="margin-top: 20px;">
+        <button onclick="supprimerDernierArticle()">Supprimer dernier article</button>
+        <button onclick="remiseAZero()">Remise à zéro</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Panier</h2>
+      <ul id="panier"></ul>
+      <div class="panier-total" id="total">Total : 0.-</div>
+    </div>
+
+    <div class="card paiement">
+      <h2>Paiement</h2>
+      <div>
+        <input type="number" id="montant-saisi" placeholder="Montant" min="0" step="0.01" />
+        <button onclick="ajouterMontantSaisi()">Ajouter le montant</button>
+        <button onclick="effacerEncaisse()" style="background-color: #f57c00;">Effacer la saisie</button>
+      </div>
+
+      <div class="paiement-info" id="encaisse">Montant encaissé : 0.-</div>
+      <div class="paiement-info rendu" id="rendu"></div>
+    </div>
+
+  </div>
+
+  <script>
+    let total = 0;
+    let montantEncaisse = 0;
+    let articlesAjoutes = [];
+    let articlesGroupes = {};
+    let consigne = 0;
+
+    function ajouterArticle(nom, prix) {
+      total += prix;
+      articlesAjoutes.push({ nom, prix });
+      if (articlesGroupes[nom]) {
+        articlesGroupes[nom].quantite += 1;
+        articlesGroupes[nom].total += prix;
+      } else {
+        articlesGroupes[nom] = { prixUnitaire: prix, quantite: 1, total: prix };
+      }
+      majPanier();
+      afficherTotal();
+      majRendu();
+    }
+
+    function supprimerDernierArticle() {
+      if (articlesAjoutes.length > 0) {
+        const dernier = articlesAjoutes.pop();
+        total -= dernier.prix;
+
+        const groupe = articlesGroupes[dernier.nom];
+        groupe.quantite -= 1;
+        groupe.total -= dernier.prix;
+        if (groupe.quantite === 0) {
+          delete articlesGroupes[dernier.nom];
+        }
+
+        majPanier();
+        afficherTotal();
+        majRendu();
+      } else {
+        alert("Aucun article à supprimer.");
+      }
+    }
+
+    function remiseAZero() {
+      articlesAjoutes = [];
+      articlesGroupes = {};
+      total = 0;
+      consigne = 0;
+      montantEncaisse = 0;
+      majPanier();
+      afficherTotal();
+      afficherEncaisse();
+      majRendu();
+      document.getElementById("montant-saisi").value = "";
+    }
+
+    function majPanier() {
+      const panier = document.getElementById("panier");
+      panier.innerHTML = "";
+
+      for (const [nom, data] of Object.entries(articlesGroupes)) {
+        const li = document.createElement("li");
+        li.textContent = `${data.quantite} ${nom} : (${data.prixUnitaire.toFixed(2)}.-) = ${data.total.toFixed(2)}.-`;
+        panier.appendChild(li);
+      }
+
+      if(consigne !== 0) {
+        const liConsigne = document.createElement("li");
+        liConsigne.textContent = `Consigne : ${consigne > 0 ? '+' : ''}${consigne.toFixed(2)}.-`;
+        panier.appendChild(liConsigne);
+      }
+    }
+
+    function afficherTotal() {
+      let totalAvecConsigne = total + consigne;
+      if (totalAvecConsigne < 0) totalAvecConsigne = 0; // évite total négatif
+      document.getElementById("total").textContent = `Total : ${totalAvecConsigne.toFixed(2)}.-`;
+    }
+
+    function ajouterConsigne() {
+      consigne += 2;
+      afficherTotal();
+      majRendu();
+      majPanier();
+    }
+
+    function retirerConsigne() {
+      consigne -= 2;
+      if(total + consigne < 0) consigne = -total; // ne pas passer sous 0 total
+      afficherTotal();
+      majRendu();
+      majPanier();
+    }
+
+    function ajouterMontantSaisi() {
+      const montantInput = document.getElementById("montant-saisi");
+      const valeur = parseFloat(montantInput.value);
+      if (!isNaN(valeur) && valeur > 0) {
+        montantEncaisse += valeur;
+        montantInput.value = "";
+        afficherEncaisse();
+        majRendu();
+      } else {
+        alert("Veuillez entrer un montant valide.");
+      }
+    }
+
+    function effacerEncaisse() {
+      montantEncaisse = 0;
+      document.getElementById("montant-saisi").value = "";
+      afficherEncaisse();
+      majRendu();
+    }
+
+    function afficherEncaisse() {
+      document.getElementById("encaisse").textContent = `Montant encaissé : ${montantEncaisse.toFixed(2)}.-`;
+    }
+
+    function majRendu() {
+      const renduElement = document.getElementById("rendu");
+      let totalAvecConsigne = total + consigne;
+      if(totalAvecConsigne < 0) totalAvecConsigne = 0;
+      if (montantEncaisse >= totalAvecConsigne && totalAvecConsigne > 0) {
+        const rendu = montantEncaisse - totalAvecConsigne;
+        renduElement.textContent = `Rendu à donner : ${rendu.toFixed(2)}.-`;
+      } else if (totalAvecConsigne > 0) {
+        const reste = totalAvecConsigne - montantEncaisse;
+        renduElement.textContent = `Il reste à payer : ${reste.toFixed(2)}.-`;
+      } else {
+        renduElement.textContent = "";
+      }
+    }
+  </script>
+</body>
+</html>
