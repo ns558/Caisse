@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
@@ -118,7 +118,7 @@
 <body>
   <div class="container">
     <div class="card commande">
-      <h2>Caisse/Commande</h2>
+      <h2>Caisse / Commande</h2>
       <div class="articles">
         <button onclick="ajouterArticle('Portion frites', 5)">Portion frites 5.-</button>
         <button onclick="ajouterArticle('Saucisse pain', 6)">Saucisse pain 6.-</button>
@@ -221,13 +221,13 @@
 
       for (const [nom, data] of Object.entries(articlesGroupes)) {
         const li = document.createElement("li");
-        li.textContent = ${data.quantite} ${nom} : (${data.prixUnitaire.toFixed(2)}.-) = ${data.total.toFixed(2)}.-;
+        li.textContent = `${data.quantite} ${nom} : (${data.prixUnitaire.toFixed(2)}.-) = ${data.total.toFixed(2)}.-`;
         panier.appendChild(li);
       }
 
       if(consigne !== 0) {
         const liConsigne = document.createElement("li");
-        liConsigne.textContent = Consigne : ${consigne > 0 ? '+' : ''}${consigne.toFixed(2)}.-;
+        liConsigne.textContent = `Consigne : ${consigne > 0 ? '+' : ''}${consigne.toFixed(2)}.-`;
         panier.appendChild(liConsigne);
       }
     }
@@ -235,7 +235,7 @@
     function afficherTotal() {
       let totalAvecConsigne = total + consigne;
       if (totalAvecConsigne < 0) totalAvecConsigne = 0; // évite total négatif
-      document.getElementById("total").textContent = Total : ${totalAvecConsigne.toFixed(2)}.-;
+      document.getElementById("total").textContent = `Total : ${totalAvecConsigne.toFixed(2)}.-`;
     }
 
     function ajouterConsigne() {
@@ -274,7 +274,7 @@
     }
 
     function afficherEncaisse() {
-      document.getElementById("encaisse").textContent = Montant encaissé : ${montantEncaisse.toFixed(2)}.-;
+      document.getElementById("encaisse").textContent = `Montant encaissé : ${montantEncaisse.toFixed(2)}.-`;
     }
 
     function majRendu() {
@@ -283,10 +283,10 @@
       if(totalAvecConsigne < 0) totalAvecConsigne = 0;
       if (montantEncaisse >= totalAvecConsigne && totalAvecConsigne > 0) {
         const rendu = montantEncaisse - totalAvecConsigne;
-        renduElement.textContent = Rendu à donner : ${rendu.toFixed(2)}.-;
+        renduElement.textContent = `Rendu à donner : ${rendu.toFixed(2)}.-`;
       } else if (totalAvecConsigne > 0) {
         const reste = totalAvecConsigne - montantEncaisse;
-        renduElement.textContent = Il reste à payer : ${reste.toFixed(2)}.-;
+        renduElement.textContent = `Il reste à payer : ${reste.toFixed(2)}.-`;
       } else {
         renduElement.textContent = "";
       }
