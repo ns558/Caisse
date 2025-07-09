@@ -145,17 +145,11 @@
       border-top: 1px solid #eee; /* Added border-top for separation */
       padding-top: 15px; /* Adjusted padding-top */
     }
-    .stock-management-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 15px;
-    }
     .stock-management h2 {
       text-align: left; /* Aligned to left */
       font-size: 1.2rem;
       color: #2980b9;
-      margin: 0; /* Removed default margin */
+      margin-bottom: 15px;
     }
     .stock-list {
       list-style: none;
@@ -219,7 +213,7 @@
       display: flex;
       gap: 10px; /* Espace entre les boutons d'historique */
     }
-    .toggle-btn { /* General style for toggle buttons */
+    .history-buttons .toggle-history-btn {
       background: #4982ed;
       color: white;
       border: none;
@@ -233,7 +227,7 @@
       justify-content: center;
       align-items: center;
     }
-    .toggle-btn:hover {
+    .history-buttons .toggle-history-btn:hover {
       background: #302188;
     }
     .history-buttons .reset-history-btn {
@@ -248,7 +242,48 @@
     .history-buttons .reset-history-btn:hover {
       background: #c82333;
     }
-    .history-list, .stock-list.hidden { /* Applied hidden class to stock-list */
+    .history-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      padding: 0;
+      list-style: none;
+      max-height: 400px;
+      overflow-y: auto;
+      border: 1px solid #eee;
+      padding: 10px;
+      border-radius: 8px;
+      background: #f9f9f9;
+    }
+    .history-card {
+      background: #ffffff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 15px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      font-size: 0.9rem;
+    }
+    .history-card strong {
+      display: block;
+      margin-bottom: 5px;
+      color: #2980b9;
+    }
+    .history-card ul {
+      list-style: none;
+      padding: 0;
+      margin: 5px 0;
+    }
+    .history-card li {
+      padding: 2px 0;
+      border-bottom: none;
+    }
+    .history-card .total-history {
+      font-weight: bold;
+      text-align: right;
+      margin-top: 10px;
+      color: #e74c3c;
+    }
+    .history-list.hidden {
       display: none;
     }
   </style>
@@ -282,19 +317,14 @@
     </div>
 
     <div class="stock-management">
-      <div class="stock-management-header">
-        <h2>Stock actuel</h2>
-        <button id="toggle-stock-btn" class="toggle-btn" onclick="toggleStock()">+</button>
-      </div>
-      <div id="stock-content">
-        <ul class="stock-list hidden" id="stock-update-list"></ul>
-      </div>
+      <h2>Stock actuel</h2>
+      <ul class="stock-list" id="stock-update-list"></ul>
     </div>
     <div class="history-section">
       <div class="history-header">
         <h2>Historique des commandes</h2>
         <div class="history-buttons">
-          <button id="toggle-history-btn" class="toggle-btn" onclick="toggleHistory()">+</button>
+          <button id="toggle-history-btn" class="toggle-history-btn" onclick="toggleHistory()">+</button>
           <button class="reset-history-btn" onclick="resetHistory()">Réinitialiser</button>
         </div>
       </div>
@@ -600,18 +630,6 @@
       }
     }
 
-    function toggleStock() {
-      const stockList = document.getElementById('stock-update-list');
-      const toggleButton = document.getElementById('toggle-stock-btn');
-      if (stockList.classList.contains('hidden')) {
-        stockList.classList.remove('hidden');
-        toggleButton.textContent = '-'; // Change le texte du bouton en "-"
-      } else {
-        stockList.classList.add('hidden');
-        toggleButton.textContent = '+'; // Change le texte du bouton en "+"
-      }
-    }
-
     function resetHistory() {
       if (confirm("Êtes-vous sûr de vouloir supprimer tout l'historique des commandes ?")) {
         commandHistory = [];
@@ -626,9 +644,6 @@
       initializeStockManagement();
       updateCart();
       renderCommandHistory();
-      // Ensure stock list is initially hidden by default
-      toggleStock(); 
-      toggleHistory(); // Ensure history is also hidden by default
     });
   </script>
 </body>
