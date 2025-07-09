@@ -1,296 +1,475 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Caisse Enregistreuse</title>
-  <style>
-    body {
-      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f4f6f8;
-      margin: 0;
-      padding: 20px;
-      color: #333;
-    }
-    h1, h2 {
-      text-align: center;
-      color: #444;
-    }
-    .container {
-      max-width: 600px;
-      margin: 0 auto;
-    }
-    .card {
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      padding: 20px;
-      margin-bottom: 20px;
-    }
-    button {
-      margin: 8px 5px;
-      padding: 12px 20px;
-      font-size: 16px;
-      border: none;
-      border-radius: 8px;
-      background-color: #4CAF50;
-      color: white;
-      cursor: pointer;
-      transition: background-color 0.3s;
-    }
-    button:hover {
-      background-color: #45a049;
-    }
-    .actions button {
-      background-color: #e53935;
-    }
-    .actions button:hover {
-      background-color: #d32f2f;
-    }
-    .paiement button {
-      background-color: #1976d2;
-    }
-    .paiement button:hover {
-      background-color: #1565c0;
-    }
-    input[type="number"] {
-      padding: 10px;
-      font-size: 16px;
-      width: 150px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      margin-right: 8px;
-    }
-    ul {
-      list-style-type: none;
-      padding: 0;
-    }
-    li {
-      padding: 10px;
-      border-bottom: 1px solid #ddd;
-      font-size: 16px;
-    }
-    .panier-total {
-      font-size: 18px;
-      font-weight: bold;
-      margin-top: 15px;
-      text-align: center;
-      color: #333;
-    }
-    .paiement-info {
-      font-size: 18px;
-      font-weight: bold;
-      margin-top: 15px;
-      text-align: center;
-      color: #333;
-    }
-    .rendu {
-      color: #d32f2f;
-      margin-top: 8px;
-    }
-
-    .articles {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-    }
-    .articles button {
-      width: 100%;
-      box-sizing: border-box;
-      text-align: left;
-    }
-
-    .consigne-buttons {
-      display: flex;
-      justify-content: center;
-      gap: 15px;
-      margin-top: 15px;
-    }
-    .consigne-buttons button {
-      width: 140px;
-      background-color: #ff9800;
-    }
-    .consigne-buttons button:hover {
-      background-color: #fb8c00;
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="card commande">
-      <h2>Caisse / Commande</h2>
-      <div class="articles">
-        <button onclick="ajouterArticle('Portion frites', 5)">Portion frites 5.-</button>
-        <button onclick="ajouterArticle('Saucisse pain', 6)">Saucisse pain 6.-</button>
-        <button onclick="ajouterArticle('Saucisse frites', 10)">Saucisse frites 10.-</button>
-        <button onclick="ajouterArticle('Roastbeef, frites', 22)">Roastbeef, frites 22.-</button>
-        <button onclick="ajouterArticle('Crêpe: jambon', 6)">Crêpe: jambon 6.-</button>
-        <button onclick="ajouterArticle('Crêpe: jambon - fromage', 7)">Crêpe: jambon - fromage 7.-</button>
-        <button onclick="ajouterArticle('Crêpe: sucre / sucre-cannelle', 5)">Crêpe: sucre / sucre-cannelle 5.-</button>
-        <button onclick="ajouterArticle('Crêpe: pâte à tartiner / confiture', 5)">Crêpe: pâte à tartiner / confiture 5.-</button>
-      </div>
-
-      <div class="consigne-buttons">
-        <button onclick="ajouterConsigne()">Consigne +2.-</button>
-        <button onclick="retirerConsigne()">Consigne -2.-</button>
-      </div>
-
-      <div class="actions" style="margin-top: 20px;">
-        <button onclick="supprimerDernierArticle()">Supprimer dernier article</button>
-        <button onclick="remiseAZero()">Remise à zéro</button>
-      </div>
-    </div>
-
-    <div class="card">
-      <h2>Panier</h2>
-      <ul id="panier"></ul>
-      <div class="panier-total" id="total">Total : 0.-</div>
-    </div>
-
-    <div class="card paiement">
-      <h2>Paiement</h2>
-      <div>
-        <input type="number" id="montant-saisi" placeholder="Montant" min="0" step="0.01" />
-        <button onclick="ajouterMontantSaisi()">Ajouter le montant</button>
-        <button onclick="effacerEncaisse()" style="background-color: #f57c00;">Effacer la saisie</button>
-      </div>
-
-      <div class="paiement-info" id="encaisse">Montant encaissé : 0.-</div>
-      <div class="paiement-info rendu" id="rendu"></div>
-    </div>
-
-  </div>
-
-  <script>
-    let total = 0;
-    let montantEncaisse = 0;
-    let articlesAjoutes = [];
-    let articlesGroupes = {};
-    let consigne = 0;
-
-    function ajouterArticle(nom, prix) {
-      total += prix;
-      articlesAjoutes.push({ nom, prix });
-      if (articlesGroupes[nom]) {
-        articlesGroupes[nom].quantite += 1;
-        articlesGroupes[nom].total += prix;
-      } else {
-        articlesGroupes[nom] = { prixUnitaire: prix, quantite: 1, total: prix };
-      }
-      majPanier();
-      afficherTotal();
-      majRendu();
-    }
-
-    function supprimerDernierArticle() {
-      if (articlesAjoutes.length > 0) {
-        const dernier = articlesAjoutes.pop();
-        total -= dernier.prix;
-
-        const groupe = articlesGroupes[dernier.nom];
-        groupe.quantite -= 1;
-        groupe.total -= dernier.prix;
-        if (groupe.quantite === 0) {
-          delete articlesGroupes[dernier.nom];
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caisse Enregistreuse Simple</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        /* Style pour les boutons d'articles (retour au design précédent) */
+        .articles {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .article-button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 15px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.2s ease;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .article-button:hover {
+            background-color: #2980b9;
+        }
+        .article-button span:first-child {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .article-button .stock-info { /* Info stock sur le bouton reste */
+            font-size: 0.8em;
+            opacity: 0.9;
+        }
+        .article-button.out-of-stock {
+            background-color: #cccccc;
+            cursor: not-allowed;
+            opacity: 0.7;
         }
 
-        majPanier();
-        afficherTotal();
-        majRendu();
-      } else {
-        alert("Aucun article à supprimer.");
-      }
-    }
+        .panier, .total-section {
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+            margin-top: 20px;
+        }
+        .panier ul {
+            list-style: none;
+            padding: 0;
+        }
+        .panier li {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px dashed #eee;
+        }
+        .panier li:last-child {
+            border-bottom: none;
+        }
+        .total-section p {
+            font-size: 1.5em;
+            font-weight: bold;
+            text-align: right;
+            color: #e74c3c;
+        }
+        .action-buttons-top {
+            display: flex;
+            justify-content: flex-start;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        /* Ajustement pour le bouton Payer directement sous le total */
+        .action-buttons-bottom {
+            display: flex;
+            justify-content: flex-end; /* Aligner à droite */
+            margin-top: 15px; /* Petit espace après le total */
+        }
+        .action-buttons-top button, .action-buttons-bottom button {
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.2s ease;
+        }
+        .action-buttons-top .clear-button {
+            background-color: #f39c12;
+        }
+        .action-buttons-top .clear-button:hover {
+            background-color: #e67e22;
+        }
+        .action-buttons-top .delete-last-button {
+            background-color: #e74c3c;
+        }
+        .action-buttons-top .delete-last-button:hover {
+            background-color: #c0392b;
+        }
+        .action-buttons-bottom .checkout-button {
+            background-color: #2ecc71;
+        }
+        .action-buttons-bottom .checkout-button:hover {
+            background-color: #27ae60;
+        }
 
-    function remiseAZero() {
-      articlesAjoutes = [];
-      articlesGroupes = {};
-      total = 0;
-      consigne = 0;
-      montantEncaisse = 0;
-      majPanier();
-      afficherTotal();
-      afficherEncaisse();
-      majRendu();
-      document.getElementById("montant-saisi").value = "";
-    }
+        /* Nouvelle section pour la gestion du stock */
+        .stock-management {
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+            margin-top: 30px;
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            width: 100%;
+        }
+        .stock-management h2 {
+            color: #2980b9;
+            margin-top: 0;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .stock-list ul {
+            list-style: none;
+            padding: 0;
+        }
+        .stock-list li {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px dashed #eee;
+        }
+        .stock-list li:last-child {
+            border-bottom: none;
+        }
+        .stock-list .item-name {
+            font-weight: bold;
+            flex-grow: 1;
+            margin-right: 10px;
+        }
+        .stock-list .current-stock {
+            font-size: 0.9em;
+            color: #8e44ad;
+            margin-right: 15px;
+            min-width: 80px;
+            text-align: right;
+        }
+        .stock-list .stock-input-group {
+            display: flex;
+            gap: 5px;
+        }
+        .stock-list .stock-input-group input {
+            width: 60px;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .stock-list .stock-input-group button {
+            background-color: #9b59b6;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85em;
+            transition: background-color 0.2s ease;
+        }
+        .stock-list .stock-input-group button:hover {
+            background-color: #8e44ad;
+        }
+        .stock-list .no-stock-item {
+            color: #777;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Caisse Enregistreuse</h1>
 
-    function majPanier() {
-      const panier = document.getElementById("panier");
-      panier.innerHTML = "";
+        <div class="articles" id="article-buttons">
+            </div>
 
-      for (const [nom, data] of Object.entries(articlesGroupes)) {
-        const li = document.createElement("li");
-        li.textContent = `${data.quantite} ${nom} : (${data.prixUnitaire.toFixed(2)}.-) = ${data.total.toFixed(2)}.-`;
-        panier.appendChild(li);
-      }
+        <div class="action-buttons-top">
+            <button class="clear-button" onclick="clearCart()">Effacer tout</button>
+            <button class="delete-last-button" onclick="removeLastArticle()">Effacer dernier article</button>
+        </div>
 
-      if(consigne !== 0) {
-        const liConsigne = document.createElement("li");
-        liConsigne.textContent = `Consigne : ${consigne > 0 ? '+' : ''}${consigne.toFixed(2)}.-`;
-        panier.appendChild(liConsigne);
-      }
-    }
+        <div class="panier">
+            <h2>Votre Panier</h2>
+            <ul id="panier-list">
+                </ul>
+        </div>
 
-    function afficherTotal() {
-      let totalAvecConsigne = total + consigne;
-      if (totalAvecConsigne < 0) totalAvecConsigne = 0; // évite total négatif
-      document.getElementById("total").textContent = `Total : ${totalAvecConsigne.toFixed(2)}.-`;
-    }
+        <div class="total-section">
+            <p>Total : <span id="total-amount">0.00</span> €</p>
+            <div class="action-buttons-bottom">
+                <button class="checkout-button" onclick="checkout()">Payer</button>
+            </div>
+        </div>
 
-    function ajouterConsigne() {
-      consigne += 2;
-      afficherTotal();
-      majRendu();
-      majPanier();
-    }
+        <div class="stock-management">
+            <h2>Gestion des Stocks</h2>
+            <div class="stock-list">
+                <ul id="stock-update-list">
+                    </ul>
+            </div>
+        </div>
 
-    function retirerConsigne() {
-      consigne -= 2;
-      if(total + consigne < 0) consigne = -total; // ne pas passer sous 0 total
-      afficherTotal();
-      majRendu();
-      majPanier();
-    }
+    </div>
 
-    function ajouterMontantSaisi() {
-      const montantInput = document.getElementById("montant-saisi");
-      const valeur = parseFloat(montantInput.value);
-      if (!isNaN(valeur) && valeur > 0) {
-        montantEncaisse += valeur;
-        montantInput.value = "";
-        afficherEncaisse();
-        majRendu();
-      } else {
-        alert("Veuillez entrer un montant valide.");
-      }
-    }
+    <script>
+        // Définition des articles disponibles avec leurs prix et leur stock
+        const articles = [
+            { id: 'frites', name: 'Portion frites', price: 5.00, stock: -1 },
+            { id: 'saucisse_pain', name: 'Saucisse pain', price: 6.00, stock: -1 },
+            { id: 'saucisse_frites', name: 'Saucisse frites', price: 10.00, stock: -1 },
+            { id: 'roastbeef_frites', name: 'Roastbeef frites', price: 22.00, stock: 10 }, // Stock de 10
+            { id: 'crepe_jambon', name: 'Crêpe jambon', price: 6.00, stock: -1 },
+            { id: 'crepe_jambon_fromage', name: 'Crêpe jambon + fromage', price: 7.00, stock: -1 },
+            { id: 'crepe_sucre', name: 'Crêpe sucre', price: 5.00, stock: -1 },
+            { id: 'crepe_confiture', name: 'Crêpe confiture', price: 5.00, stock: -1 }
+        ];
 
-    function effacerEncaisse() {
-      montantEncaisse = 0;
-      document.getElementById("montant-saisi").value = "";
-      afficherEncaisse();
-      majRendu();
-    }
+        let cartItems = [];
+        let total = 0;
 
-    function afficherEncaisse() {
-      document.getElementById("encaisse").textContent = `Montant encaissé : ${montantEncaisse.toFixed(2)}.-`;
-    }
+        const articleButtonsDiv = document.getElementById('article-buttons');
+        const panierList = document.getElementById('panier-list');
+        const totalAmountSpan = document.getElementById('total-amount');
+        const stockUpdateList = document.getElementById('stock-update-list');
 
-    function majRendu() {
-      const renduElement = document.getElementById("rendu");
-      let totalAvecConsigne = total + consigne;
-      if(totalAvecConsigne < 0) totalAvecConsigne = 0;
-      if (montantEncaisse >= totalAvecConsigne && totalAvecConsigne > 0) {
-        const rendu = montantEncaisse - totalAvecConsigne;
-        renduElement.textContent = `Rendu à donner : ${rendu.toFixed(2)}.-`;
-      } else if (totalAvecConsigne > 0) {
-        const reste = totalAvecConsigne - montantEncaisse;
-        renduElement.textContent = `Il reste à payer : ${reste.toFixed(2)}.-`;
-      } else {
-        renduElement.textContent = "";
-      }
-    }
-  </script>
+        function initializeArticleButtons() {
+            articleButtonsDiv.innerHTML = '';
+            articles.forEach(article => {
+                const button = document.createElement('button');
+                button.classList.add('article-button');
+                button.setAttribute('data-id', article.id);
+
+                let stockInfoText = '';
+                let isDisabled = false;
+
+                if (article.stock !== -1) {
+                    stockInfoText = `Stock: ${article.stock}`;
+                    if (article.stock <= 0) {
+                        isDisabled = true;
+                        button.classList.add('out-of-stock');
+                        stockInfoText = 'Rupture de stock';
+                    }
+                }
+
+                button.innerHTML = `
+                    <span>${article.name}</span>
+                    <span>${article.price.toFixed(2)} €</span>
+                    <span class="stock-info">${stockInfoText}</span>
+                `;
+                button.disabled = isDisabled;
+                button.onclick = () => addArticleToCart(article);
+                articleButtonsDiv.appendChild(button);
+            });
+        }
+
+        function initializeStockManagement() {
+            stockUpdateList.innerHTML = '';
+            const roastbeefArticle = articles.find(a => a.id === 'roastbeef_frites');
+
+            if (roastbeefArticle) {
+                const listItem = document.createElement('li');
+                listItem.innerHTML = `
+                    <span class="item-name">${roastbeefArticle.name}</span>
+                    <span class="current-stock">Actuel: ${roastbeefArticle.stock}</span>
+                    <div class="stock-input-group">
+                        <input type="number" min="0" value="${roastbeefArticle.stock}" id="stock-input-${roastbeefArticle.id}">
+                        <button onclick="updateArticleStock('${roastbeefArticle.id}')">Maj</button>
+                    </div>
+                `;
+                stockUpdateList.appendChild(listItem);
+            } else {
+                stockUpdateList.innerHTML = '<li>Article "Roastbeef frites" non trouvé ou stock non géré.</li>';
+            }
+        }
+
+        function updateArticleStock(articleId) {
+            const articleToUpdate = articles.find(a => a.id === articleId);
+            if (!articleToUpdate) return;
+
+            const inputElement = document.getElementById(`stock-input-${articleId}`);
+            let newStock = parseInt(inputElement.value);
+
+            if (isNaN(newStock) || newStock < 0) {
+                inputElement.value = articleToUpdate.stock;
+                return;
+            }
+
+            articleToUpdate.stock = newStock;
+            
+            const cartItemIndex = cartItems.findIndex(item => item.articleId === articleId);
+            if (cartItemIndex !== -1) {
+                if (newStock === 0) {
+                    cartItems.splice(cartItemIndex, 1);
+                } else if (cartItems[cartItemIndex].quantity > newStock) {
+                    cartItems[cartItemIndex].quantity = newStock;
+                }
+            }
+
+            updateCartDisplay();
+            initializeArticleButtons();
+            initializeStockManagement();
+        }
+
+        function addArticleToCart(articleToAdd) {
+            if (articleToAdd.stock !== -1 && articleToAdd.stock <= 0) {
+                return;
+            }
+
+            const existingItemIndex = cartItems.findIndex(item => item.articleId === articleToAdd.id);
+
+            if (existingItemIndex !== -1) {
+                if (articleToAdd.stock !== -1 && (cartItems[existingItemIndex].quantity + 1) > articleToAdd.stock) {
+                    return;
+                }
+                cartItems[existingItemIndex].quantity++;
+            } else {
+                cartItems.push({ articleId: articleToAdd.id, quantity: 1 });
+            }
+
+            if (articleToAdd.stock !== -1) {
+                articleToAdd.stock--;
+            }
+            updateCartDisplay();
+            initializeArticleButtons();
+            initializeStockManagement();
+        }
+
+        function updateCartDisplay() {
+            panierList.innerHTML = '';
+            total = 0;
+
+            if (cartItems.length === 0) {
+                panierList.innerHTML = '<li>Le panier est vide.</li>';
+                totalAmountSpan.textContent = total.toFixed(2);
+                return;
+            }
+
+            cartItems.forEach(cartItem => {
+                const articleDetails = articles.find(a => a.id === cartItem.articleId);
+                if (articleDetails) {
+                    const listItem = document.createElement('li');
+                    const itemTotal = articleDetails.price * cartItem.quantity;
+                    listItem.innerHTML = `
+                        <span>${articleDetails.name} (x${cartItem.quantity})</span>
+                        <span>${itemTotal.toFixed(2)} €</span>
+                    `;
+                    panierList.appendChild(listItem);
+                    total += itemTotal;
+                }
+            });
+            totalAmountSpan.textContent = total.toFixed(2);
+        }
+
+        function clearCart() {
+            if (cartItems.length === 0) {
+                return;
+            }
+            cartItems.forEach(cartItem => {
+                const articleDetails = articles.find(a => a.id === cartItem.articleId);
+                if (articleDetails && articleDetails.stock !== -1) {
+                    articleDetails.stock += cartItem.quantity;
+                }
+            });
+
+            cartItems = [];
+            total = 0;
+            updateCartDisplay();
+            initializeArticleButtons();
+            initializeStockManagement();
+        }
+
+        function removeLastArticle() {
+            if (cartItems.length === 0) {
+                return;
+            }
+
+            const lastItemIndex = cartItems.length - 1;
+            const lastCartItem = cartItems[lastItemIndex];
+            const articleDetails = articles.find(a => a.id === lastCartItem.articleId);
+
+            if (articleDetails && articleDetails.stock !== -1) {
+                articleDetails.stock++;
+            }
+
+            if (lastCartItem.quantity > 1) {
+                lastCartItem.quantity--;
+            } else {
+                cartItems.pop();
+            }
+            updateCartDisplay();
+            initializeArticleButtons();
+            initializeStockManagement();
+        }
+
+        // Nouvelle version de la fonction checkout()
+        function checkout() {
+            if (total === 0) {
+                alert("Votre panier est vide. Veuillez ajouter des articles avant de payer.");
+                return;
+            }
+
+            // Demande le montant donné par le client
+            let amountGiven = prompt(`Total à payer : ${total.toFixed(2)} €\nMontant donné par le client :`);
+
+            // Vérifie si l'utilisateur a annulé le prompt
+            if (amountGiven === null) {
+                return; // Annule l'opération si l'utilisateur clique sur Annuler
+            }
+
+            amountGiven = parseFloat(amountGiven);
+
+            // Valide l'entrée
+            if (isNaN(amountGiven) || amountGiven < total) {
+                alert(`Montant invalide. Le montant donné (${amountGiven ? amountGiven.toFixed(2) : 'non spécifié'} €) doit être un nombre et supérieur ou égal au total (${total.toFixed(2)} €).`);
+                checkout(); // Redemande le montant si invalide
+                return;
+            }
+
+            const change = amountGiven - total;
+
+            alert(`Paiement de ${total.toFixed(2)} € effectué !\nMontant donné : ${amountGiven.toFixed(2)} €\nMonnaie à rendre : ${change.toFixed(2)} €\n\nMerci de votre achat !`);
+
+            // Réinitialise le panier après un paiement réussi
+            cartItems = [];
+            total = 0;
+            updateCartDisplay();
+            initializeArticleButtons();
+            initializeStockManagement();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeArticleButtons();
+            initializeStockManagement();
+            updateCartDisplay();
+        });
+    </script>
 </body>
 </html>
