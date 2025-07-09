@@ -102,16 +102,21 @@
       color: white;
       cursor: pointer;
     }
-    .clear { background: #f39c12; }
-    .clear:hover { background: #e67e22; }
+    .clear { background: #f31212; }
+    .clear:hover { background: #e23434; }
     .delete { background: #e74c3c; }
     .delete:hover { background: #c0392b; }
+    .checkout-buttons { /* Container for checkout and return change buttons */
+        display: flex;
+        justify-content: space-between;
+        align-items: center; /* Align items vertically */
+        gap: 10px; /* Space between the buttons */
+        margin-top: 20px;
+    }
     .checkout {
       background: #2ecc71;
-      width: 50%;
+      flex: 2; /* Make the "Payer" button wider */
       padding: 20px 0;
-      margin: 20px auto 0;
-      display: block;
       border-radius: 8px;
       font-size: 1.2rem;
       color: white;
@@ -120,6 +125,21 @@
       transition: background 0.2s;
     }
     .checkout:hover { background: #27ae60; }
+    .payment-help { /* Style for the new payment help button */
+        background: #9b59b6; /* A distinct color, e.g., purple */
+        flex: 1; /* Make it smaller relative to checkout */
+        padding: 20px 0; /* Same height as checkout button */
+        border-radius: 8px; /* Same border-radius as checkout button */
+        font-size: 0.9rem; /* Smaller font size */
+        color: white;
+        border: none;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+    .payment-help:hover {
+        background: #8e44ad;
+    }
+
     .stock-management {
       margin-top: 30px;
       background: #f9f9f9;
@@ -184,10 +204,10 @@
       gap: 10px; /* Espace entre les boutons d'historique */
     }
     .history-buttons .toggle-history-btn {
-      background: #28a745; /* Vert pour afficher/masquer */
+      background: #4982ed;
       color: white;
       border: none;
-      padding: 5px 10px; /* Plus petit */
+      padding: 5px 10px; 
       border-radius: 4px;
       cursor: pointer;
       font-size: 1rem; /* Taille de police pour le +/- */
@@ -198,7 +218,7 @@
       align-items: center;
     }
     .history-buttons .toggle-history-btn:hover {
-      background: #218838;
+      background: #302188;
     }
     .history-buttons .reset-history-btn {
       background: #dc3545; /* Rouge pour réinitialiser */
@@ -265,8 +285,8 @@
     <div class="articles" id="article-buttons"></div>
 
     <div class="consigne-buttons">
-      <button onclick="addConsigne()" class="consigne-button">Consigne +2 €</button>
-      <button onclick="removeConsigne()" class="consigne-button">Consigne -2 €</button>
+      <button onclick="addConsigne()" class="consigne-button">Consigne +2.-</button>
+      <button onclick="removeConsigne()" class="consigne-button">Consigne -2.-</button>
     </div>
 
     <div class="buttons">
@@ -279,17 +299,17 @@
       <ul id="panier-list"></ul>
     </div>
 
-    <div class="total-section">Total : <span id="total-amount">0.00 €</span></div>
+    <div class="total-section">Total : <span id="total-amount">0.00.-</span></div>
 
-    <button class="checkout" onclick="checkout()">Payer</button>
-
-    <div class="stock-management">
-      <h2>Stock Roastbeef frites</h2>
-      <ul class="stock-list" id="stock-update-list"></ul>
+    <div class="checkout-buttons">
+        <button class="checkout" onclick="checkout()">Terminer la commande</button>
+        <button class="payment-help" onclick="calculateChange()"> Aide au paiement</button>
     </div>
 
-    ---
-
+    <div class="stock-management">
+      <h2>Stock actuel</h2>
+      <ul class="stock-list" id="stock-update-list"></ul>
+    </div>
     <div class="history-section">
       <div class="history-header">
         <h2>Historique des commandes</h2>
@@ -334,7 +354,7 @@
         let qtyInCart = cartItem ? cartItem.quantity : 0;
         let stockRestant = article.stock !== -1 ? article.stock - qtyInCart : Infinity;
 
-        button.textContent = `${article.name} ${article.price.toFixed(2)} \u20AC`; // Utilisation du symbole euro correct
+       button.textContent = `${article.name} ${article.price.toFixed(2)} .-`;
 
         if (article.id === 'roastbeef' && article.stock >= 0) {
           const badge = document.createElement('span');
@@ -424,7 +444,7 @@
 
       if (cartItems.length === 0) {
         ul.innerHTML = '<li>Panier vide.</li>';
-        document.getElementById('total-amount').textContent = '0.00 \u20AC';
+        document.getElementById('total-amount').textContent = '0.00 .-';
         return;
       }
 
@@ -438,18 +458,18 @@
           itemName = 'Consigne';
         } else if (cartItem.articleId === '__rabais') {
           lineTotal = cartItem.customPrice * cartItem.quantity;
-          itemName = 'Rabais';
+          itemName = 'Retour consigne';
         } else {
           const article = articles.find(x => x.id === cartItem.articleId);
           lineTotal = article.price * cartItem.quantity;
           itemName = article.name;
         }
 
-        li.innerHTML = `<span>${itemName} x${cartItem.quantity}</span><span>${lineTotal.toFixed(2)} \u20AC</span>`;
+        li.innerHTML = `<span>${itemName} x${cartItem.quantity}</span><span>${lineTotal.toFixed(2)} .-</span>`;
         total += lineTotal;
         ul.appendChild(li);
       });
-      document.getElementById('total-amount').textContent = total.toFixed(2) + ' \u20AC';
+      document.getElementById('total-amount').textContent = total.toFixed(2) + ' .-';
     }
 
     function checkout() {
@@ -458,16 +478,8 @@
         return;
       }
 
-      let given = prompt(`Total à payer : ${total.toFixed(2)} \u20AC\nMontant donné ?`);
-      if (given === null) return;
-
-      given = parseFloat(given);
-      if (isNaN(given) || given < total) {
-        alert("Montant insuffisant.");
-        return;
-      }
-
-      alert(`Paiement effectué.\nMonnaie : ${(given - total).toFixed(2)} \u20AC`);
+      // No prompt for given amount, simply records the sale as an exact payment
+      alert(`Commande payée pour ${total.toFixed(2)} .-`);
 
       // Enregistrer la commande dans l'historique
       const now = new Date();
@@ -477,12 +489,15 @@
         items: cartItems.map(item => {
             const articleInfo = articles.find(a => a.id === item.articleId);
             return {
-                name: item.name || (articleInfo ? articleInfo.name : ''),
-                quantity: item.quantity,
-                price: item.customPrice !== undefined ? item.customPrice : (articleInfo ? articleInfo.price : 0)
+              name: item.name || (articleInfo ? articleInfo.name : ''),
+              quantity: item.quantity,
+              price: item.customPrice !== undefined ? item.customPrice : (articleInfo ? articleInfo.price : 0)
             };
         }),
-        total: total
+        total: total,
+        given: total, // Assuming exact payment for 'Payer' button
+        change: 0,    // No change for 'Payer' button
+        type: 'payment'
       };
       commandHistory.push(command);
       localStorage.setItem('commandHistory', JSON.stringify(commandHistory));
@@ -490,6 +505,31 @@
 
       clearCart();
     }
+
+    function calculateChange() {
+        if (total === 0) {
+            alert("Le panier est vide. Il n'y a pas de monnaie à calculer.");
+            return;
+        }
+
+        let given = prompt(`Total à payer : ${total.toFixed(2)} .-\nMontant donné par le client ?`);
+        if (given === null) { // User clicked cancel
+            return;
+        }
+
+        given = parseFloat(given);
+        if (isNaN(given) || given < total) {
+            alert("Montant invalide ou insuffisant.");
+            return;
+        }
+
+        const change = given - total;
+        alert(`Montant donné : ${given.toFixed(2)} .-\nMonnaie à rendre : ${change.toFixed(2)} .-`);
+
+        // Removed the part that records this action to commandHistory
+        // Also removed the clearCart() call from here
+    }
+
 
     function initializeStockManagement() {
       const ul = document.getElementById('stock-update-list');
@@ -528,14 +568,30 @@
 
         let itemsHtml = '<ul>';
         command.items.forEach(item => {
-          itemsHtml += `<li>${item.name} x${item.quantity} (${(item.price * item.quantity).toFixed(2)} \u20AC)</li>`;
+          itemsHtml += `<li>${item.name} x${item.quantity} (${(item.price * item.quantity).toFixed(2)} .-)</li>`;
         });
         itemsHtml += '</ul>';
+
+        let totalDisplay = '';
+        if (command.type === 'payment') {
+            totalDisplay = `
+                <div class="total-history">Total payé: ${command.total.toFixed(2)} .-</div>
+            `;
+        } else if (command.type === 'changeCalculation') {
+            // This part should technically not be reached if `calculateChange` doesn't log
+            // However, existing history entries of type 'changeCalculation' will still be displayed correctly.
+            totalDisplay = `
+                <div class="total-history" style="color: #337ab7;">Total commande: ${command.total.toFixed(2)} .-</div>
+                <div class="total-history" style="font-size: 0.9em; color: #6c757d;">Montant donné: ${command.given.toFixed(2)} .-</div>
+                <div class="total-history" style="font-size: 0.9em; color: #28a745;">Monnaie à rendre: ${command.change.toFixed(2)} .-</div>
+            `;
+        }
+
 
         card.innerHTML = `
           <strong>${command.date} ${command.time}</strong>
           ${itemsHtml}
-          <div class="total-history">Total: ${command.total.toFixed(2)} \u20AC</div>
+          ${totalDisplay}
         `;
         historyList.appendChild(card);
       });
@@ -554,7 +610,7 @@
     }
 
     function resetHistory() {
-      if (confirm("Êtes-vous sûr de vouloir supprimer tout l'historique des commandes ? Cette action est irréversible.")) {
+      if (confirm("Êtes-vous sûr de vouloir supprimer tout l'historique des commandes ?")) {
         commandHistory = [];
         localStorage.removeItem('commandHistory');
         renderCommandHistory();
