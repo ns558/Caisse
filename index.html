@@ -1,475 +1,573 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Caisse Enregistreuse Simple</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin: 20px;
-            background-color: #f4f4f4;
-            color: #333;
-        }
-        .container {
-            background-color: #fff;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 600px;
-        }
-        h1 {
-            color: #2c3e50;
-            text-align: center;
-            margin-bottom: 25px;
-        }
-        /* Style pour les boutons d'articles (retour au design précédent) */
-        .articles {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-        .article-button {
-            background-color: #3498db;
-            color: white;
-            border: none;
-            padding: 15px 10px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1em;
-            transition: background-color 0.2s ease;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-        .article-button:hover {
-            background-color: #2980b9;
-        }
-        .article-button span:first-child {
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-        .article-button .stock-info { /* Info stock sur le bouton reste */
-            font-size: 0.8em;
-            opacity: 0.9;
-        }
-        .article-button.out-of-stock {
-            background-color: #cccccc;
-            cursor: not-allowed;
-            opacity: 0.7;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Commande</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: #fff;
+      padding: 25px;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      font-size: 1.6rem;
+      text-align: center;
+      color: #2980b9;
+      margin-bottom: 20px;
+    }
+    .articles, .consigne-buttons {
+      display: grid;
+      grid-template-columns: repeat(2,1fr);
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+    .article-button, .consigne-button {
+      background: #3498db;
+      color: #fff;
+      border: none;
+      padding: 14px;
+      border-radius: 6px;
+      font-size: 1rem;
+      cursor: pointer;
+      text-align: center;
+      transition: background 0.2s;
+      position: relative;
+    }
+    .article-button:hover:not(:disabled),
+    .consigne-button:hover {
+      background: #2980b9;
+    }
+    .article-button:disabled, .article-button.out-of-stock {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    .stock-badge {
+      display: block;
+      margin-top: 8px;
+      background: #e67e22;
+      color: white;
+      font-size: 0.75rem;
+      padding: 4px 8px;
+      border-radius: 12px;
+      text-align: center;
+      pointer-events: none;
+      user-select: none;
+    }
+    .panier {
+      margin-top: 20px;
+      border-top: 1px solid #eee;
+      padding-top: 15px;
+    }
+    .panier ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .panier li {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      border-bottom: 1px dashed #ccc;
+    }
+    .total-section {
+      text-align: right;
+      font-size: 1.3rem;
+      font-weight: bold;
+      color: #e74c3c;
+      margin-top: 10px;
+    }
+    .buttons {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .buttons button {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      color: white;
+      cursor: pointer;
+    }
+    .clear { background: #f39c12; }
+    .clear:hover { background: #e67e22; }
+    .delete { background: #e74c3c; }
+    .delete:hover { background: #c0392b; }
+    .checkout {
+      background: #2ecc71;
+      width: 50%;
+      padding: 20px 0;
+      margin: 20px auto 0;
+      display: block;
+      border-radius: 8px;
+      font-size: 1.2rem;
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .checkout:hover { background: #27ae60; }
+    .stock-management {
+      margin-top: 30px;
+      background: #f9f9f9;
+      padding: 15px;
+      border-radius: 8px;
+    }
+    .stock-management h2 {
+      text-align: center;
+      font-size: 1.2rem;
+      color: #2980b9;
+      margin-bottom: 15px;
+    }
+    .stock-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .stock-list li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .stock-list input {
+      width: 60px;
+      padding: 5px;
+      text-align: center;
+      margin-right: 10px;
+    }
+    .stock-list button {
+      background: #9b59b6;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .stock-list button:hover {
+      background: #8e44ad;
+    }
 
-        .panier, .total-section {
-            border-top: 1px solid #eee;
-            padding-top: 20px;
-            margin-top: 20px;
-        }
-        .panier ul {
-            list-style: none;
-            padding: 0;
-        }
-        .panier li {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px dashed #eee;
-        }
-        .panier li:last-child {
-            border-bottom: none;
-        }
-        .total-section p {
-            font-size: 1.5em;
-            font-weight: bold;
-            text-align: right;
-            color: #e74c3c;
-        }
-        .action-buttons-top {
-            display: flex;
-            justify-content: flex-start;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        /* Ajustement pour le bouton Payer directement sous le total */
-        .action-buttons-bottom {
-            display: flex;
-            justify-content: flex-end; /* Aligner à droite */
-            margin-top: 15px; /* Petit espace après le total */
-        }
-        .action-buttons-top button, .action-buttons-bottom button {
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1em;
-            transition: background-color 0.2s ease;
-        }
-        .action-buttons-top .clear-button {
-            background-color: #f39c12;
-        }
-        .action-buttons-top .clear-button:hover {
-            background-color: #e67e22;
-        }
-        .action-buttons-top .delete-last-button {
-            background-color: #e74c3c;
-        }
-        .action-buttons-top .delete-last-button:hover {
-            background-color: #c0392b;
-        }
-        .action-buttons-bottom .checkout-button {
-            background-color: #2ecc71;
-        }
-        .action-buttons-bottom .checkout-button:hover {
-            background-color: #27ae60;
-        }
-
-        /* Nouvelle section pour la gestion du stock */
-        .stock-management {
-            border-top: 1px solid #eee;
-            padding-top: 20px;
-            margin-top: 30px;
-            background-color: #f9f9f9;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            width: 100%;
-        }
-        .stock-management h2 {
-            color: #2980b9;
-            margin-top: 0;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-        .stock-list ul {
-            list-style: none;
-            padding: 0;
-        }
-        .stock-list li {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px dashed #eee;
-        }
-        .stock-list li:last-child {
-            border-bottom: none;
-        }
-        .stock-list .item-name {
-            font-weight: bold;
-            flex-grow: 1;
-            margin-right: 10px;
-        }
-        .stock-list .current-stock {
-            font-size: 0.9em;
-            color: #8e44ad;
-            margin-right: 15px;
-            min-width: 80px;
-            text-align: right;
-        }
-        .stock-list .stock-input-group {
-            display: flex;
-            gap: 5px;
-        }
-        .stock-list .stock-input-group input {
-            width: 60px;
-            padding: 5px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            text-align: center;
-        }
-        .stock-list .stock-input-group button {
-            background-color: #9b59b6;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.85em;
-            transition: background-color 0.2s ease;
-        }
-        .stock-list .stock-input-group button:hover {
-            background-color: #8e44ad;
-        }
-        .stock-list .no-stock-item {
-            color: #777;
-            font-style: italic;
-        }
-    </style>
+    /* Styles pour l'historique des commandes */
+    .history-section {
+      margin-top: 30px;
+      border-top: 1px solid #eee;
+      padding-top: 15px;
+    }
+    .history-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    .history-header h2 {
+      margin: 0;
+      font-size: 1.2rem;
+      color: #2980b9;
+    }
+    .history-buttons {
+      display: flex;
+      gap: 10px; /* Espace entre les boutons d'historique */
+    }
+    .history-buttons .toggle-history-btn {
+      background: #28a745; /* Vert pour afficher/masquer */
+      color: white;
+      border: none;
+      padding: 5px 10px; /* Plus petit */
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 1rem; /* Taille de police pour le +/- */
+      width: 35px; /* Largeur fixe pour un bouton carré */
+      height: 35px; /* Hauteur fixe pour un bouton carré */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .history-buttons .toggle-history-btn:hover {
+      background: #218838;
+    }
+    .history-buttons .reset-history-btn {
+      background: #dc3545; /* Rouge pour réinitialiser */
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+    .history-buttons .reset-history-btn:hover {
+      background: #c82333;
+    }
+    .history-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      padding: 0;
+      list-style: none;
+      max-height: 400px;
+      overflow-y: auto;
+      border: 1px solid #eee;
+      padding: 10px;
+      border-radius: 8px;
+      background: #f9f9f9;
+    }
+    .history-card {
+      background: #ffffff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 15px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      font-size: 0.9rem;
+    }
+    .history-card strong {
+      display: block;
+      margin-bottom: 5px;
+      color: #2980b9;
+    }
+    .history-card ul {
+      list-style: none;
+      padding: 0;
+      margin: 5px 0;
+    }
+    .history-card li {
+      padding: 2px 0;
+      border-bottom: none;
+    }
+    .history-card .total-history {
+      font-weight: bold;
+      text-align: right;
+      margin-top: 10px;
+      color: #e74c3c;
+    }
+    .history-list.hidden {
+      display: none;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Caisse Enregistreuse</h1>
+  <div class="container">
+    <h1>Commande</h1>
 
-        <div class="articles" id="article-buttons">
-            </div>
+    <div class="articles" id="article-buttons"></div>
 
-        <div class="action-buttons-top">
-            <button class="clear-button" onclick="clearCart()">Effacer tout</button>
-            <button class="delete-last-button" onclick="removeLastArticle()">Effacer dernier article</button>
-        </div>
-
-        <div class="panier">
-            <h2>Votre Panier</h2>
-            <ul id="panier-list">
-                </ul>
-        </div>
-
-        <div class="total-section">
-            <p>Total : <span id="total-amount">0.00</span> €</p>
-            <div class="action-buttons-bottom">
-                <button class="checkout-button" onclick="checkout()">Payer</button>
-            </div>
-        </div>
-
-        <div class="stock-management">
-            <h2>Gestion des Stocks</h2>
-            <div class="stock-list">
-                <ul id="stock-update-list">
-                    </ul>
-            </div>
-        </div>
-
+    <div class="consigne-buttons">
+      <button onclick="addConsigne()" class="consigne-button">Consigne +2 €</button>
+      <button onclick="removeConsigne()" class="consigne-button">Consigne -2 €</button>
     </div>
 
-    <script>
-        // Définition des articles disponibles avec leurs prix et leur stock
-        const articles = [
-            { id: 'frites', name: 'Portion frites', price: 5.00, stock: -1 },
-            { id: 'saucisse_pain', name: 'Saucisse pain', price: 6.00, stock: -1 },
-            { id: 'saucisse_frites', name: 'Saucisse frites', price: 10.00, stock: -1 },
-            { id: 'roastbeef_frites', name: 'Roastbeef frites', price: 22.00, stock: 10 }, // Stock de 10
-            { id: 'crepe_jambon', name: 'Crêpe jambon', price: 6.00, stock: -1 },
-            { id: 'crepe_jambon_fromage', name: 'Crêpe jambon + fromage', price: 7.00, stock: -1 },
-            { id: 'crepe_sucre', name: 'Crêpe sucre', price: 5.00, stock: -1 },
-            { id: 'crepe_confiture', name: 'Crêpe confiture', price: 5.00, stock: -1 }
-        ];
+    <div class="buttons">
+      <button class="clear" onclick="clearCart()">Effacer tout</button>
+      <button class="delete" onclick="removeLastArticle()">Effacer dernier</button>
+    </div>
 
-        let cartItems = [];
-        let total = 0;
+    <div class="panier">
+      <h2>Panier</h2>
+      <ul id="panier-list"></ul>
+    </div>
 
-        const articleButtonsDiv = document.getElementById('article-buttons');
-        const panierList = document.getElementById('panier-list');
-        const totalAmountSpan = document.getElementById('total-amount');
-        const stockUpdateList = document.getElementById('stock-update-list');
+    <div class="total-section">Total : <span id="total-amount">0.00 €</span></div>
 
-        function initializeArticleButtons() {
-            articleButtonsDiv.innerHTML = '';
-            articles.forEach(article => {
-                const button = document.createElement('button');
-                button.classList.add('article-button');
-                button.setAttribute('data-id', article.id);
+    <button class="checkout" onclick="checkout()">Payer</button>
 
-                let stockInfoText = '';
-                let isDisabled = false;
+    <div class="stock-management">
+      <h2>Stock Roastbeef frites</h2>
+      <ul class="stock-list" id="stock-update-list"></ul>
+    </div>
 
-                if (article.stock !== -1) {
-                    stockInfoText = `Stock: ${article.stock}`;
-                    if (article.stock <= 0) {
-                        isDisabled = true;
-                        button.classList.add('out-of-stock');
-                        stockInfoText = 'Rupture de stock';
-                    }
-                }
+    ---
 
-                button.innerHTML = `
-                    <span>${article.name}</span>
-                    <span>${article.price.toFixed(2)} €</span>
-                    <span class="stock-info">${stockInfoText}</span>
-                `;
-                button.disabled = isDisabled;
-                button.onclick = () => addArticleToCart(article);
-                articleButtonsDiv.appendChild(button);
-            });
+    <div class="history-section">
+      <div class="history-header">
+        <h2>Historique des commandes</h2>
+        <div class="history-buttons">
+          <button id="toggle-history-btn" class="toggle-history-btn" onclick="toggleHistory()">+</button>
+          <button class="reset-history-btn" onclick="resetHistory()">Réinitialiser</button>
+        </div>
+      </div>
+      <div id="history-content">
+        <ul id="command-history-list" class="history-list hidden">
+          </ul>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const articles = [
+      { id: 'frites', name: 'Frites', price: 5, stock: -1 },
+      { id: 'saucisse', name: 'Saucisse pain', price: 6, stock: -1 },
+      { id: 'saucisse_frites', name: 'Saucisse frites', price: 10, stock: -1 },
+      { id: 'roastbeef', name: 'Roastbeef frites', price: 22, stock: 10 },
+      { id: 'crepe_jambon', name: 'Crêpe jambon', price: 6, stock: -1 },
+      { id: 'crepe_jambon_fromage', name: 'Crêpe jambon + fromage', price: 7, stock: -1 },
+      { id: 'crepe_sucre', name: 'Crêpe sucre', price: 5, stock: -1 },
+      { id: 'crepe_confiture', name: 'Crêpe confiture', price: 5, stock: -1 }
+    ];
+
+    let cartItems = [];
+    let itemHistory = []; // Historique des ajouts au panier (pour le bouton "effacer dernier")
+    let commandHistory = JSON.parse(localStorage.getItem('commandHistory')) || []; // Historique des commandes payées
+    let total = 0;
+
+    function initializeArticleButtons() {
+      const container = document.getElementById('article-buttons');
+      container.innerHTML = '';
+      articles.forEach(article => {
+        const button = document.createElement('button');
+        button.className = 'article-button';
+
+        let cartItem = cartItems.find(ci => ci.articleId === article.id);
+        let qtyInCart = cartItem ? cartItem.quantity : 0;
+        let stockRestant = article.stock !== -1 ? article.stock - qtyInCart : Infinity;
+
+        button.textContent = `${article.name} ${article.price.toFixed(2)} \u20AC`; // Utilisation du symbole euro correct
+
+        if (article.id === 'roastbeef' && article.stock >= 0) {
+          const badge = document.createElement('span');
+          badge.className = 'stock-badge';
+          badge.textContent = `Stock: ${stockRestant}`;
+          button.appendChild(badge);
         }
 
-        function initializeStockManagement() {
-            stockUpdateList.innerHTML = '';
-            const roastbeefArticle = articles.find(a => a.id === 'roastbeef_frites');
+        if (stockRestant <= 0) {
+          button.disabled = true;
+          button.classList.add('out-of-stock');
+        }
+        button.onclick = () => addToCart(article);
+        container.appendChild(button);
+      });
+    }
 
-            if (roastbeefArticle) {
-                const listItem = document.createElement('li');
-                listItem.innerHTML = `
-                    <span class="item-name">${roastbeefArticle.name}</span>
-                    <span class="current-stock">Actuel: ${roastbeefArticle.stock}</span>
-                    <div class="stock-input-group">
-                        <input type="number" min="0" value="${roastbeefArticle.stock}" id="stock-input-${roastbeefArticle.id}">
-                        <button onclick="updateArticleStock('${roastbeefArticle.id}')">Maj</button>
-                    </div>
-                `;
-                stockUpdateList.appendChild(listItem);
-            } else {
-                stockUpdateList.innerHTML = '<li>Article "Roastbeef frites" non trouvé ou stock non géré.</li>';
-            }
+    function addToCart(article) {
+      let cartItem = cartItems.find(ci => ci.articleId === article.id);
+      let qtyInCart = cartItem ? cartItem.quantity : 0;
+      let stockRestant = article.stock !== -1 ? article.stock - qtyInCart : Infinity;
+
+      if (stockRestant <= 0) return;
+
+      if (cartItem) {
+        cartItem.quantity++;
+      } else {
+        cartItems.push({ articleId: article.id, quantity: 1, name: article.name, price: article.price });
+      }
+
+      itemHistory.push(article.id);
+      updateCart();
+      initializeArticleButtons();
+      initializeStockManagement();
+    }
+
+    function addConsigne() {
+      let cartItem = cartItems.find(ci => ci.articleId === '__consigne');
+      if (cartItem) {
+        cartItem.quantity++;
+      } else {
+        cartItems.push({ articleId: '__consigne', quantity: 1, customPrice: 2, name: 'Consigne' });
+      }
+      itemHistory.push('__consigne');
+      updateCart();
+    }
+
+    function removeConsigne() {
+      let cartItem = cartItems.find(ci => ci.articleId === '__rabais');
+      if (cartItem) {
+        cartItem.quantity++;
+      } else {
+        cartItems.push({ articleId: '__rabais', quantity: 1, customPrice: -2, name: 'Rabais' });
+      }
+      itemHistory.push('__rabais');
+      updateCart();
+    }
+
+    function removeLastArticle() {
+      if (!itemHistory.length) return;
+      const lastAddedId = itemHistory.pop();
+      const cartItem = cartItems.find(ci => ci.articleId === lastAddedId);
+      
+      if (!cartItem) return;
+
+      cartItem.quantity--;
+      if (cartItem.quantity <= 0) {
+        cartItems.splice(cartItems.findIndex(x => x.articleId === lastAddedId), 1);
+      }
+      updateCart();
+      initializeArticleButtons();
+      initializeStockManagement();
+    }
+
+    function clearCart() {
+      cartItems = [];
+      itemHistory = [];
+      updateCart();
+      initializeArticleButtons();
+      initializeStockManagement();
+    }
+
+    function updateCart() {
+      const ul = document.getElementById('panier-list');
+      ul.innerHTML = '';
+      total = 0;
+
+      if (cartItems.length === 0) {
+        ul.innerHTML = '<li>Panier vide.</li>';
+        document.getElementById('total-amount').textContent = '0.00 \u20AC';
+        return;
+      }
+
+      cartItems.forEach(cartItem => {
+        const li = document.createElement('li');
+        let lineTotal = 0;
+        let itemName = '';
+
+        if (cartItem.articleId === '__consigne') {
+          lineTotal = cartItem.customPrice * cartItem.quantity;
+          itemName = 'Consigne';
+        } else if (cartItem.articleId === '__rabais') {
+          lineTotal = cartItem.customPrice * cartItem.quantity;
+          itemName = 'Rabais';
+        } else {
+          const article = articles.find(x => x.id === cartItem.articleId);
+          lineTotal = article.price * cartItem.quantity;
+          itemName = article.name;
         }
 
-        function updateArticleStock(articleId) {
-            const articleToUpdate = articles.find(a => a.id === articleId);
-            if (!articleToUpdate) return;
+        li.innerHTML = `<span>${itemName} x${cartItem.quantity}</span><span>${lineTotal.toFixed(2)} \u20AC</span>`;
+        total += lineTotal;
+        ul.appendChild(li);
+      });
+      document.getElementById('total-amount').textContent = total.toFixed(2) + ' \u20AC';
+    }
 
-            const inputElement = document.getElementById(`stock-input-${articleId}`);
-            let newStock = parseInt(inputElement.value);
+    function checkout() {
+      if (total === 0) {
+        alert("Panier vide !");
+        return;
+      }
 
-            if (isNaN(newStock) || newStock < 0) {
-                inputElement.value = articleToUpdate.stock;
-                return;
-            }
+      let given = prompt(`Total à payer : ${total.toFixed(2)} \u20AC\nMontant donné ?`);
+      if (given === null) return;
 
-            articleToUpdate.stock = newStock;
-            
-            const cartItemIndex = cartItems.findIndex(item => item.articleId === articleId);
-            if (cartItemIndex !== -1) {
-                if (newStock === 0) {
-                    cartItems.splice(cartItemIndex, 1);
-                } else if (cartItems[cartItemIndex].quantity > newStock) {
-                    cartItems[cartItemIndex].quantity = newStock;
-                }
-            }
+      given = parseFloat(given);
+      if (isNaN(given) || given < total) {
+        alert("Montant insuffisant.");
+        return;
+      }
 
-            updateCartDisplay();
-            initializeArticleButtons();
-            initializeStockManagement();
-        }
+      alert(`Paiement effectué.\nMonnaie : ${(given - total).toFixed(2)} \u20AC`);
 
-        function addArticleToCart(articleToAdd) {
-            if (articleToAdd.stock !== -1 && articleToAdd.stock <= 0) {
-                return;
-            }
+      // Enregistrer la commande dans l'historique
+      const now = new Date();
+      const command = {
+        date: now.toLocaleDateString('fr-CH'),
+        time: now.toLocaleTimeString('fr-CH', { hour: '2-digit', minute: '2-digit' }),
+        items: cartItems.map(item => {
+            const articleInfo = articles.find(a => a.id === item.articleId);
+            return {
+                name: item.name || (articleInfo ? articleInfo.name : ''),
+                quantity: item.quantity,
+                price: item.customPrice !== undefined ? item.customPrice : (articleInfo ? articleInfo.price : 0)
+            };
+        }),
+        total: total
+      };
+      commandHistory.push(command);
+      localStorage.setItem('commandHistory', JSON.stringify(commandHistory));
+      renderCommandHistory(); // Mettre à jour l'affichage de l'historique
 
-            const existingItemIndex = cartItems.findIndex(item => item.articleId === articleToAdd.id);
+      clearCart();
+    }
 
-            if (existingItemIndex !== -1) {
-                if (articleToAdd.stock !== -1 && (cartItems[existingItemIndex].quantity + 1) > articleToAdd.stock) {
-                    return;
-                }
-                cartItems[existingItemIndex].quantity++;
-            } else {
-                cartItems.push({ articleId: articleToAdd.id, quantity: 1 });
-            }
+    function initializeStockManagement() {
+      const ul = document.getElementById('stock-update-list');
+      ul.innerHTML = '';
+      const roastbeefArticle = articles.find(x => x.id === 'roastbeef');
+      const li = document.createElement('li');
+      li.innerHTML = `
+        <span>${roastbeefArticle.name}</span>
+        <input type="number" id="roast-stock" value="${roastbeefArticle.stock}" min="0"/>
+        <button onclick="updateRoastStock()">Maj</button>`;
+      ul.appendChild(li);
+    }
 
-            if (articleToAdd.stock !== -1) {
-                articleToAdd.stock--;
-            }
-            updateCartDisplay();
-            initializeArticleButtons();
-            initializeStockManagement();
-        }
+    function updateRoastStock() {
+      const roastbeefArticle = articles.find(x => x.id === 'roastbeef');
+      const value = parseInt(document.getElementById('roast-stock').value);
+      if (!isNaN(value) && value >= 0) {
+        roastbeefArticle.stock = value;
+      }
+      initializeArticleButtons();
+      initializeStockManagement();
+    }
 
-        function updateCartDisplay() {
-            panierList.innerHTML = '';
-            total = 0;
+    function renderCommandHistory() {
+      const historyList = document.getElementById('command-history-list');
+      historyList.innerHTML = '';
 
-            if (cartItems.length === 0) {
-                panierList.innerHTML = '<li>Le panier est vide.</li>';
-                totalAmountSpan.textContent = total.toFixed(2);
-                return;
-            }
+      if (commandHistory.length === 0) {
+        historyList.innerHTML = '<p style="text-align: center; color: #666;">Aucune commande historique.</p>';
+        return;
+      }
 
-            cartItems.forEach(cartItem => {
-                const articleDetails = articles.find(a => a.id === cartItem.articleId);
-                if (articleDetails) {
-                    const listItem = document.createElement('li');
-                    const itemTotal = articleDetails.price * cartItem.quantity;
-                    listItem.innerHTML = `
-                        <span>${articleDetails.name} (x${cartItem.quantity})</span>
-                        <span>${itemTotal.toFixed(2)} €</span>
-                    `;
-                    panierList.appendChild(listItem);
-                    total += itemTotal;
-                }
-            });
-            totalAmountSpan.textContent = total.toFixed(2);
-        }
+      commandHistory.slice().reverse().forEach(command => { // Afficher les plus récentes en premier
+        const card = document.createElement('div');
+        card.className = 'history-card';
 
-        function clearCart() {
-            if (cartItems.length === 0) {
-                return;
-            }
-            cartItems.forEach(cartItem => {
-                const articleDetails = articles.find(a => a.id === cartItem.articleId);
-                if (articleDetails && articleDetails.stock !== -1) {
-                    articleDetails.stock += cartItem.quantity;
-                }
-            });
-
-            cartItems = [];
-            total = 0;
-            updateCartDisplay();
-            initializeArticleButtons();
-            initializeStockManagement();
-        }
-
-        function removeLastArticle() {
-            if (cartItems.length === 0) {
-                return;
-            }
-
-            const lastItemIndex = cartItems.length - 1;
-            const lastCartItem = cartItems[lastItemIndex];
-            const articleDetails = articles.find(a => a.id === lastCartItem.articleId);
-
-            if (articleDetails && articleDetails.stock !== -1) {
-                articleDetails.stock++;
-            }
-
-            if (lastCartItem.quantity > 1) {
-                lastCartItem.quantity--;
-            } else {
-                cartItems.pop();
-            }
-            updateCartDisplay();
-            initializeArticleButtons();
-            initializeStockManagement();
-        }
-
-        // Nouvelle version de la fonction checkout()
-        function checkout() {
-            if (total === 0) {
-                alert("Votre panier est vide. Veuillez ajouter des articles avant de payer.");
-                return;
-            }
-
-            // Demande le montant donné par le client
-            let amountGiven = prompt(`Total à payer : ${total.toFixed(2)} €\nMontant donné par le client :`);
-
-            // Vérifie si l'utilisateur a annulé le prompt
-            if (amountGiven === null) {
-                return; // Annule l'opération si l'utilisateur clique sur Annuler
-            }
-
-            amountGiven = parseFloat(amountGiven);
-
-            // Valide l'entrée
-            if (isNaN(amountGiven) || amountGiven < total) {
-                alert(`Montant invalide. Le montant donné (${amountGiven ? amountGiven.toFixed(2) : 'non spécifié'} €) doit être un nombre et supérieur ou égal au total (${total.toFixed(2)} €).`);
-                checkout(); // Redemande le montant si invalide
-                return;
-            }
-
-            const change = amountGiven - total;
-
-            alert(`Paiement de ${total.toFixed(2)} € effectué !\nMontant donné : ${amountGiven.toFixed(2)} €\nMonnaie à rendre : ${change.toFixed(2)} €\n\nMerci de votre achat !`);
-
-            // Réinitialise le panier après un paiement réussi
-            cartItems = [];
-            total = 0;
-            updateCartDisplay();
-            initializeArticleButtons();
-            initializeStockManagement();
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            initializeArticleButtons();
-            initializeStockManagement();
-            updateCartDisplay();
+        let itemsHtml = '<ul>';
+        command.items.forEach(item => {
+          itemsHtml += `<li>${item.name} x${item.quantity} (${(item.price * item.quantity).toFixed(2)} \u20AC)</li>`;
         });
-    </script>
+        itemsHtml += '</ul>';
+
+        card.innerHTML = `
+          <strong>${command.date} ${command.time}</strong>
+          ${itemsHtml}
+          <div class="total-history">Total: ${command.total.toFixed(2)} \u20AC</div>
+        `;
+        historyList.appendChild(card);
+      });
+    }
+
+    function toggleHistory() {
+      const historyList = document.getElementById('command-history-list');
+      const toggleButton = document.getElementById('toggle-history-btn');
+      if (historyList.classList.contains('hidden')) {
+        historyList.classList.remove('hidden');
+        toggleButton.textContent = '-'; // Change le texte du bouton en "-"
+      } else {
+        historyList.classList.add('hidden');
+        toggleButton.textContent = '+'; // Change le texte du bouton en "+"
+      }
+    }
+
+    function resetHistory() {
+      if (confirm("Êtes-vous sûr de vouloir supprimer tout l'historique des commandes ? Cette action est irréversible.")) {
+        commandHistory = [];
+        localStorage.removeItem('commandHistory');
+        renderCommandHistory();
+        alert("Historique des commandes supprimé.");
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initializeArticleButtons();
+      initializeStockManagement();
+      updateCart();
+      renderCommandHistory();
+    });
+  </script>
 </body>
 </html>
