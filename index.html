@@ -142,26 +142,42 @@
 
     .stock-management {
       margin-top: 30px;
-      background: #f9f9f9;
-      padding: 15px;
-      border-radius: 8px;
+      border-top: 1px solid #eee; /* Added border-top for separation */
+      padding-top: 15px; /* Adjusted padding-top */
+    }
+    .stock-management-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
     }
     .stock-management h2 {
-      text-align: center;
+      text-align: left; /* Aligned to left */
       font-size: 1.2rem;
       color: #2980b9;
-      margin-bottom: 15px;
+      margin: 0; /* Removed default margin */
     }
     .stock-list {
       list-style: none;
       padding: 0;
       margin: 0;
+      border: 1px solid #eee; /* Added border */
+      padding: 10px; /* Added padding */
+      border-radius: 8px; /* Added border-radius */
+      background: #ffffff; /* Changed background to white */
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05); /* Added shadow */
     }
     .stock-list li {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 10px;
+      padding-bottom: 5px;
+      border-bottom: 1px dashed #ccc; /* Added separator */
+    }
+    .stock-list li:last-child {
+      margin-bottom: 0;
+      border-bottom: none; /* No separator for the last item */
     }
     .stock-list input {
       width: 60px;
@@ -203,7 +219,7 @@
       display: flex;
       gap: 10px; /* Espace entre les boutons d'historique */
     }
-    .history-buttons .toggle-history-btn {
+    .toggle-btn { /* General style for toggle buttons */
       background: #4982ed;
       color: white;
       border: none;
@@ -217,7 +233,7 @@
       justify-content: center;
       align-items: center;
     }
-    .history-buttons .toggle-history-btn:hover {
+    .toggle-btn:hover {
       background: #302188;
     }
     .history-buttons .reset-history-btn {
@@ -232,48 +248,7 @@
     .history-buttons .reset-history-btn:hover {
       background: #c82333;
     }
-    .history-list {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 15px;
-      padding: 0;
-      list-style: none;
-      max-height: 400px;
-      overflow-y: auto;
-      border: 1px solid #eee;
-      padding: 10px;
-      border-radius: 8px;
-      background: #f9f9f9;
-    }
-    .history-card {
-      background: #ffffff;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      padding: 15px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-      font-size: 0.9rem;
-    }
-    .history-card strong {
-      display: block;
-      margin-bottom: 5px;
-      color: #2980b9;
-    }
-    .history-card ul {
-      list-style: none;
-      padding: 0;
-      margin: 5px 0;
-    }
-    .history-card li {
-      padding: 2px 0;
-      border-bottom: none;
-    }
-    .history-card .total-history {
-      font-weight: bold;
-      text-align: right;
-      margin-top: 10px;
-      color: #e74c3c;
-    }
-    .history-list.hidden {
+    .history-list, .stock-list.hidden { /* Applied hidden class to stock-list */
       display: none;
     }
   </style>
@@ -302,19 +277,24 @@
     <div class="total-section">Total : <span id="total-amount">0.00.-</span></div>
 
     <div class="checkout-buttons">
-        <button class="checkout" onclick="checkout()">Terminer la commande</button>
-        <button class="payment-help" onclick="calculateChange()"> Aide au paiement</button>
+        <button class="checkout" onclick="checkout()">Payer</button>
+        <button class="payment-help" onclick="calculateChange()">Aide au paiement</button>
     </div>
 
     <div class="stock-management">
-      <h2>Stock actuel</h2>
-      <ul class="stock-list" id="stock-update-list"></ul>
+      <div class="stock-management-header">
+        <h2>Stock actuel</h2>
+        <button id="toggle-stock-btn" class="toggle-btn" onclick="toggleStock()">+</button>
+      </div>
+      <div id="stock-content">
+        <ul class="stock-list hidden" id="stock-update-list"></ul>
+      </div>
     </div>
     <div class="history-section">
       <div class="history-header">
         <h2>Historique des commandes</h2>
         <div class="history-buttons">
-          <button id="toggle-history-btn" class="toggle-history-btn" onclick="toggleHistory()">+</button>
+          <button id="toggle-history-btn" class="toggle-btn" onclick="toggleHistory()">+</button>
           <button class="reset-history-btn" onclick="resetHistory()">Réinitialiser</button>
         </div>
       </div>
@@ -478,7 +458,16 @@
         return;
       }
 
-      // No prompt for given amount, simply records the sale as an exact payment
+      // Decrease roastbeef stock if present in cart
+      const roastbeefArticle = articles.find(article => article.id === 'roastbeef');
+      const roastbeefInCart = cartItems.find(item => item.articleId === 'roastbeef');
+      if (roastbeefArticle && roastbeefArticle.stock !== -1 && roastbeefInCart) {
+        roastbeefArticle.stock -= roastbeefInCart.quantity;
+        if (roastbeefArticle.stock < 0) {
+          roastbeefArticle.stock = 0; // Ensure stock doesn't go below zero
+        }
+      }
+
       alert(`Commande payée pour ${total.toFixed(2)} .-`);
 
       // Enregistrer la commande dans l'historique
@@ -504,6 +493,8 @@
       renderCommandHistory(); // Mettre à jour l'affichage de l'historique
 
       clearCart();
+      initializeArticleButtons(); // Re-render buttons to reflect updated stock
+      initializeStockManagement(); // Re-render stock management to reflect updated stock
     }
 
     function calculateChange() {
@@ -609,6 +600,18 @@
       }
     }
 
+    function toggleStock() {
+      const stockList = document.getElementById('stock-update-list');
+      const toggleButton = document.getElementById('toggle-stock-btn');
+      if (stockList.classList.contains('hidden')) {
+        stockList.classList.remove('hidden');
+        toggleButton.textContent = '-'; // Change le texte du bouton en "-"
+      } else {
+        stockList.classList.add('hidden');
+        toggleButton.textContent = '+'; // Change le texte du bouton en "+"
+      }
+    }
+
     function resetHistory() {
       if (confirm("Êtes-vous sûr de vouloir supprimer tout l'historique des commandes ?")) {
         commandHistory = [];
@@ -623,6 +626,9 @@
       initializeStockManagement();
       updateCart();
       renderCommandHistory();
+      // Ensure stock list is initially hidden by default
+      toggleStock(); 
+      toggleHistory(); // Ensure history is also hidden by default
     });
   </script>
 </body>
