@@ -21,8 +21,8 @@
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
     h1 {
-      font-size: 1.6rem;
-      text-align: center;
+      font-size: 1.2rem;
+      text-align: left;
       color: #2980b9;
       margin-bottom: 20px;
     }
@@ -130,7 +130,7 @@
         flex: 1; /* Make it smaller relative to checkout */
         padding: 20px 0; /* Same height as checkout button */
         border-radius: 8px; /* Same border-radius as checkout button */
-        font-size: 0.9rem; /* Smaller font size */
+        font-size: 1.2rem; /* Smaller font size */
         color: white;
         border: none;
         cursor: pointer;
@@ -180,7 +180,7 @@
       margin-right: 10px;
     }
     .stock-list button {
-      background: #9b59b6;
+      background: #e67e22;
       color: white;
       border: none;
       padding: 6px 12px;
@@ -189,7 +189,7 @@
       transition: background 0.2s;
     }
     .stock-list button:hover {
-      background: #8e44ad;
+      background: #e67e22;
     }
 
     /* Styles pour l'historique des commandes */
@@ -248,8 +248,7 @@
       gap: 15px;
       padding: 0;
       list-style: none;
-      max-height: 400px;
-      overflow-y: auto;
+      overflow-y: hidden;
       border: 1px solid #eee;
       padding: 10px;
       border-radius: 8px;
@@ -312,12 +311,12 @@
     <div class="total-section">Total : <span id="total-amount">0.00.-</span></div>
 
     <div class="checkout-buttons">
-        <button class="checkout" onclick="checkout()">Payer</button>
+        <button class="checkout" onclick="checkout()">Terminer la commande</button>
         <button class="payment-help" onclick="calculateChange()">Aide au paiement</button>
     </div>
 
     <div class="stock-management">
-      <h2>Stock actuel</h2>
+      <h2>Stock actuel</h1>
       <ul class="stock-list" id="stock-update-list"></ul>
     </div>
     <div class="history-section">
@@ -417,7 +416,7 @@
       if (cartItem) {
         cartItem.quantity++;
       } else {
-        cartItems.push({ articleId: '__rabais', quantity: 1, customPrice: -2, name: 'Rabais' });
+        cartItems.push({ articleId: '__rabais', quantity: 1, customPrice: -2, name: 'Retour consigne' });
       }
       itemHistory.push('__rabais');
       updateCart();
