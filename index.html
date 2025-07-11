@@ -367,6 +367,27 @@
     .history-list.hidden {
       display: none;
     }
+
+#copy-history-btn { 
+  background: #3498db;
+  color: white;
+  border: none;
+  padding: 15px 0;
+  width: 50%;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+  display: block;
+  margin-left: auto;
+  margin-right: auto; /* Ajout pour le centrage */
+}
+
+#copy-history-btn:hover {
+  background: #2980b9;
+}
+
   </style>
 </head>
 
@@ -408,15 +429,15 @@
         <div class="history-buttons">
           <button id="toggle-history-btn" class="toggle-history-btn" onclick="toggleHistory()">+</button>
           <button class="reset-history-btn" onclick="resetHistory()">Réinitialiser</button>
-          <button class="reset-history-btn" onclick="copyHistory()">Copier</button>
         </div>
       </div>
       <div id="history-content">
+    <button id="copy-history-btn" class="copy-history-btn" style="display: none;">📋 Copier l'historique</button>
+
         <ul id="command-history-list" class="history-list hidden">
         </ul>
       </div>
     </div>
-
   </div>
 
   <script>
@@ -703,33 +724,21 @@
 
     function toggleHistory() {
       const historyList = document.getElementById('command-history-list');
-      const toggleButton = document.getElementById('toggle-history-btn');
-      if (historyList.classList.contains('hidden')) {
-        historyList.classList.remove('hidden');
-        toggleButton.textContent = '-'; // Change le texte du bouton en "-"
+      const toggleBtn = document.getElementById('toggle-history-btn');
+      const copyBtn = document.getElementById('copy-history-btn');
+
+      const isHidden = historyList.classList.contains('hidden');
+      historyList.classList.toggle('hidden');
+
+      if (isHidden) {
+        toggleBtn.textContent = '−'; // Affiché
+        copyBtn.style.display = 'inline-block';
       } else {
-        historyList.classList.add('hidden');
-        toggleButton.textContent = '+'; // Change le texte du bouton en "+"
+        toggleBtn.textContent = '+'; // Caché
+        copyBtn.style.display = 'none';
       }
     }
-    function copyHistory() {
-      if (!commandHistory.length) {
-        alert("Aucune commande à copier.");
-        return;
-      }
 
-      let text = commandHistory.map(cmd => {
-        let items = cmd.items.map(item => `${item.name} x${item.quantity}`).join(', ');
-        return `${cmd.date} ${cmd.time} - ${items} = ${cmd.total.toFixed(2)}.-`;
-      }).join('\n');
-
-      navigator.clipboard.writeText(text).then(() => {
-        alert("Historique copié dans le presse-papier !");
-      }).catch(err => {
-        alert("Erreur lors de la copie.");
-        console.error(err);
-      });
-    }
 
     function resetHistory() {
       if (confirm("Êtes-vous sûr de vouloir supprimer tout l'historique des commandes ?")) {
@@ -739,6 +748,25 @@
         alert("Historique des commandes supprimé.");
       }
     }
+
+document.getElementById('copy-history-btn').addEventListener('click', () => {
+  const list = document.getElementById('command-history-list');
+  const cards = list.querySelectorAll('.history-card');
+
+  let text = '';
+  cards.forEach(card => {
+    const date = card.querySelector('strong')?.textContent ?? '';
+    const items = Array.from(card.querySelectorAll('li')).map(li => li.textContent).join('\n');
+    const total = card.querySelector('.total-history')?.textContent ?? '';
+    text += `${date}\n${items}\n${total}\n\n`;
+  });
+
+  navigator.clipboard.writeText(text).then(() => {
+    alert("Historique copié dans le presse-papiers !");
+  }).catch(() => {
+    alert("Échec de la copie.");
+  });
+});
 
     document.addEventListener('DOMContentLoaded', () => {
       initializeArticleButtons();
