@@ -586,23 +586,23 @@
       document.getElementById('total-amount').textContent = total.toFixed(2) + ' .-';
     }
 
-    function checkout() {
-      if (total === 0) {
-        alert("Panier vide !");
-        return;
-      }
+function checkout() {
+  if (total === 0) {
+    alert("Panier vide !");
+    return;
+  }
 
-      // Decrease roastbeef stock if present in cart
-      const roastbeefArticle = articles.find(article => article.id === 'roastbeef');
-      const roastbeefInCart = cartItems.find(item => item.articleId === 'roastbeef');
-      if (roastbeefArticle && roastbeefArticle.stock !== -1 && roastbeefInCart) {
-        roastbeefArticle.stock -= roastbeefInCart.quantity;
-        if (roastbeefArticle.stock < 0) {
-          roastbeefArticle.stock = 0; // Ensure stock doesn't go below zero
-        }
-      }
+  // — 1. Mettre à jour le stock Roastbeef
+  const roastbeefArticle = articles.find(a => a.id === 'roastbeef');
+  const roastbeefInCart  = cartItems.find(i => i.articleId === 'roastbeef');
+  if (roastbeefArticle && roastbeefInCart) {
+    roastbeefArticle.stock -= roastbeefInCart.quantity;
+    if (roastbeefArticle.stock < 0) roastbeefArticle.stock = 0;
+  }
 
-      alert(`Commande payée pour ${total.toFixed(2)} .-`);
+  saveStocks();             
+  alert(`Commande payée pour ${total.toFixed(2)} .-`);
+
 
       // Enregistrer la commande dans l'historique
       const now = new Date();
@@ -673,10 +673,30 @@
       const value = parseInt(document.getElementById('roast-stock').value);
       if (!isNaN(value) && value >= 0) {
         roastbeefArticle.stock = value;
+        saveStocks();
       }
       initializeArticleButtons();
       initializeStockManagement();
     }
+
+ function loadStocks() {
+  const saved = JSON.parse(localStorage.getItem('articleStocks') || '{}');
+  articles.forEach(a => {
+    if (saved[a.id] !== undefined && a.stock !== -1) {
+      a.stock = saved[a.id];
+    }
+  });
+}
+
+function saveStocks() {
+  const snapshot = {};
+  articles.forEach(a => {
+    if (a.stock !== -1) snapshot[a.id] = a.stock;
+  });
+  localStorage.setItem('articleStocks', JSON.stringify(snapshot));
+}
+
+
 
     function renderCommandHistory() {
       const historyList = document.getElementById('command-history-list');
@@ -769,11 +789,13 @@ document.getElementById('copy-history-btn').addEventListener('click', () => {
 });
 
     document.addEventListener('DOMContentLoaded', () => {
-      initializeArticleButtons();
-      initializeStockManagement();
-      updateCart();
-      renderCommandHistory();
-    });
+  loadStocks();                    // <-- nouvelle ligne
+  initializeArticleButtons();
+  initializeStockManagement();
+  updateCart();
+  renderCommandHistory();
+});
+
   </script>
 </body>
 
