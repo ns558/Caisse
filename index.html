@@ -2,8 +2,8 @@
 <html lang="fr">
 
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Commande</title>
   <style>
     body {
@@ -11,7 +11,7 @@
       background: #f2f2f2;
       margin: 0;
       padding: 20px;
-      color: #333;
+      color: #333
     }
 
     .container {
@@ -20,26 +20,32 @@
       background: #fff;
       padding: 25px;
       border-radius: 8px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, .1)
     }
 
-    h1 {
+    h1,
+    h2 {
       font-size: 1.2rem;
-      text-align: left;
       color: #2980b9;
-      margin-bottom: 20px;
+      margin: 0 0 20px
     }
 
     .articles,
-    .consigne-buttons {
+    .consigne-buttons,
+    .buttons {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: 15px;
-      margin-bottom: 15px;
+      margin-bottom: 15px
+    }
+
+    .buttons {
+      grid-template-columns: 1fr 1fr
     }
 
     .article-button,
-    .consigne-button {
+    .consigne-button,
+    .buttons button {
       background: #3498db;
       color: #fff;
       border: none;
@@ -47,52 +53,59 @@
       border-radius: 6px;
       font-size: 1rem;
       cursor: pointer;
-      text-align: center;
-      transition: background 0.2s;
-      position: relative;
+      transition: background .2s
     }
 
     .article-button:hover:not(:disabled),
-    .consigne-button:hover {
-      background: #2980b9;
+    .consigne-button:hover,
+    .buttons button:hover {
+      background: #2980b9
     }
 
-    .article-button:disabled,
-    .article-button.out-of-stock {
+    .article-button:disabled {
       background: #ccc;
-      cursor: not-allowed;
+      cursor: not-allowed
+    }
+
+    .buttons button.clear,
+    .buttons button.delete {
+      background-color: #e74c3c;
+      color: white;
+    }
+
+    .buttons button.clear:hover,
+    .buttons button.delete:hover {
+      background-color: #c0392b;
     }
 
     .stock-badge {
       display: block;
       margin-top: 8px;
       background: #e67e22;
-      color: white;
-      font-size: 0.75rem;
+      color: #fff;
+      font-size: .75rem;
       padding: 4px 8px;
       border-radius: 12px;
-      text-align: center;
-      pointer-events: none;
-      user-select: none;
+      text-align: center
     }
 
     .panier {
       margin-top: 20px;
       border-top: 1px solid #eee;
-      padding-top: 15px;
+      padding-top: 15px
     }
 
     .panier ul {
       list-style: none;
       margin: 0;
-      padding: 0;
+      padding: 0
     }
 
     .panier li {
       display: flex;
       justify-content: space-between;
       padding: 6px 0;
-      border-bottom: 1px dashed #ccc;
+      border-bottom: 1px dashed #ccc
     }
 
     .total-section {
@@ -100,328 +113,210 @@
       font-size: 1.3rem;
       font-weight: bold;
       color: #e74c3c;
-      margin-top: 10px;
-    }
-
-    .buttons {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      margin-top: 20px;
-    }
-
-    .buttons button {
-      flex: 1;
-      padding: 12px;
-      border: none;
-      border-radius: 6px;
-      font-size: 1rem;
-      color: white;
-      cursor: pointer;
-    }
-
-    .clear {
-      background: #f31212;
-    }
-
-    .clear:hover {
-      background: #e23434;
-    }
-
-    .delete {
-      background: #e74c3c;
-    }
-
-    .delete:hover {
-      background: #c0392b;
+      margin-top: 10px
     }
 
     .checkout-buttons {
-      /* Container for checkout and return change buttons */
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      /* Align items vertically */
       gap: 10px;
-      /* Space between the buttons */
-      margin-top: 20px;
+      margin-top: 20px
+    }
+
+    .checkout,
+    .payment-help {
+      flex: 1;
+      padding: 20px 0;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.2rem;
+      color: #fff;
+      cursor: pointer;
+      transition: background .2s
     }
 
     .checkout {
-      background: #2ecc71;
-      flex: 2;
-      /* Make the "Payer" button wider */
-      padding: 20px 0;
-      border-radius: 8px;
-      font-size: 1.2rem;
-      color: white;
-      border: none;
-      cursor: pointer;
-      transition: background 0.2s;
+      background: #2ecc71
     }
 
     .checkout:hover {
-      background: #27ae60;
+      background: #27ae60
     }
 
     .payment-help {
-      /* Style for the new payment help button */
-      background: #9b59b6;
-      /* A distinct color, e.g., purple */
-      flex: 1;
-      /* Make it smaller relative to checkout */
-      padding: 20px 0;
-      /* Same height as checkout button */
-      border-radius: 8px;
-      /* Same border-radius as checkout button */
-      font-size: 1.2rem;
-      /* Smaller font size */
-      color: white;
-      border: none;
-      cursor: pointer;
-      transition: background 0.2s;
+      background: #9b59b6
     }
 
     .payment-help:hover {
-      background: #8e44ad;
+      background: #8e44ad
     }
 
-    .stock-management {
+    .delete-item {
+      color: red;
+      cursor: pointer;
+      font-weight: bold;
+      margin-left: 10px
+    }
+
+    .stock-management,
+    .history-section {
       margin-top: 30px;
       border-top: 1px solid #eee;
-      /* Added border-top for separation */
-      padding-top: 15px;
-      /* Adjusted padding-top */
+      padding-top: 15px
     }
 
-    .stock-management h2 {
-      text-align: left;
-      /* Aligned to left */
-      font-size: 1.2rem;
-      color: #2980b9;
-      margin-bottom: 15px;
-    }
-
-    .stock-list {
+    .stock-list,
+    .history-list {
       list-style: none;
-      padding: 0;
       margin: 0;
-      border: 1px solid #eee;
-      /* Added border */
       padding: 10px;
-      /* Added padding */
+      border: 1px solid #eee;
       border-radius: 8px;
-      /* Added border-radius */
-      background: #ffffff;
-      /* Changed background to white */
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-      /* Added shadow */
+      background: #fff;
+      display: grid;
+      gap: 15px
     }
 
-    .stock-list li {
+    .stock-list li,
+    .history-card {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 10px;
-      padding-bottom: 5px;
       border-bottom: 1px dashed #ccc;
-      /* Added separator */
+      padding-bottom: 5px;
+      margin-bottom: 10px
     }
 
     .stock-list li:last-child {
-      margin-bottom: 0;
       border-bottom: none;
-      /* No separator for the last item */
+      margin-bottom: 0
     }
 
     .stock-list input {
       width: 60px;
       padding: 5px;
-      text-align: center;
-      margin-right: 10px;
+      text-align: center
     }
 
     .stock-list button {
       background: #e67e22;
-      color: white;
+      color: #fff;
       border: none;
       padding: 6px 12px;
       border-radius: 4px;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-
-    .stock-list button:hover {
-      background: #e67e22;
-    }
-
-    /* Styles pour l'historique des commandes */
-    .history-section {
-      margin-top: 30px;
-      border-top: 1px solid #eee;
-      padding-top: 15px;
+      cursor: pointer
     }
 
     .history-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 15px;
-    }
-
-    .history-header h2 {
-      margin: 0;
-      font-size: 1.2rem;
-      color: #2980b9;
+      margin-bottom: 15px
     }
 
     .history-buttons {
       display: flex;
-      gap: 10px;
-      /* Espace entre les boutons d'historique */
+      gap: 10px
     }
 
-    .history-buttons .toggle-history-btn {
-      background: #4982ed;
-      color: white;
+    .toggle-history-btn,
+    .reset-history-btn {
       border: none;
-      padding: 5px 10px;
-      border-radius: 4px;
       cursor: pointer;
-      font-size: 1rem;
-      /* Taille de police pour le +/- */
+      border-radius: 4px;
+      padding: 8px 12px;
+      color: #fff
+    }
+
+    .toggle-history-btn {
+      background: #4982ed;
       width: 35px;
-      /* Largeur fixe pour un bouton carré */
       height: 35px;
-      /* Hauteur fixe pour un bouton carré */
       display: flex;
       justify-content: center;
       align-items: center;
+      font-size: 1rem
     }
 
-    .history-buttons .toggle-history-btn:hover {
-      background: #302188;
+    .toggle-history-btn:hover {
+      background: #302188
     }
 
-    .history-buttons .reset-history-btn {
+    .reset-history-btn {
       background: #dc3545;
-      /* Rouge pour réinitialiser */
-      color: white;
-      border: none;
-      padding: 8px 12px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 0.9rem;
+      font-size: .9rem
     }
 
-    .history-buttons .reset-history-btn:hover {
-      background: #c82333;
-    }
-
-    .history-list {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 15px;
-      padding: 0;
-      list-style: none;
-      overflow-y: hidden;
-      border: 1px solid #eee;
-      padding: 10px;
-      border-radius: 8px;
-      background: #f9f9f9;
+    .reset-history-btn:hover {
+      background: #c82333
     }
 
     .history-card {
-      background: #ffffff;
       border: 1px solid #ddd;
       border-radius: 8px;
       padding: 15px;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-      font-size: 0.9rem;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, .05);
+      font-size: .9rem
     }
 
     .history-card strong {
       display: block;
       margin-bottom: 5px;
-      color: #2980b9;
+      color: #2980b9
     }
 
-    .history-card ul {
-      list-style: none;
-      padding: 0;
-      margin: 5px 0;
-    }
-
-    .history-card li {
-      padding: 2px 0;
-      border-bottom: none;
-    }
-
-    .history-card .total-history {
+    .total-history {
       font-weight: bold;
       text-align: right;
       margin-top: 10px;
-      color: #e74c3c;
+      color: #e74c3c
     }
 
     .history-list.hidden {
-      display: none;
+      display: none
     }
 
-#copy-history-btn { 
-  background: #3498db;
-  color: white;
-  border: none;
-  padding: 14px 0;
-  width: 100%;
-  border-radius: 8px;
-  font-size: 1.1rem;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background 0.2s;
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-}
+    #copy-history-btn {
+      background: #3498db;
+      color: #fff;
+      border: none;
+      padding: 14px 0;
+      width: 100%;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer
+    }
 
-#copy-history-btn:hover {
-  background: #2980b9;
-}
-
+    #copy-history-btn:hover {
+      background: #2980b9
+    }
   </style>
 </head>
 
 <body>
   <div class="container">
     <h1>Commande</h1>
-
     <div class="articles" id="article-buttons"></div>
-
     <div class="consigne-buttons">
       <button onclick="addConsigne()" class="consigne-button">Consigne +2.-</button>
       <button onclick="removeConsigne()" class="consigne-button">Consigne -2.-</button>
     </div>
-
     <div class="buttons">
       <button class="clear" onclick="clearCart()">Effacer tout</button>
       <button class="delete" onclick="removeLastArticle()">Effacer dernier</button>
     </div>
-
     <div class="panier">
       <h2>Panier</h2>
       <ul id="panier-list"></ul>
     </div>
-
     <div class="total-section">Total : <span id="total-amount">0.00.-</span></div>
-
     <div class="checkout-buttons">
-      <button class="checkout" onclick="checkout()">Terminer la commande</button>
-      <button class="payment-help" onclick="calculateChange()">Aide au paiement</button>
+      <button class="checkout" onclick="checkout()">Terminer</button>
+      <button class="payment-help" onclick="calculateChange()">Aide paiement</button>
     </div>
-
     <div class="stock-management">
-      <h2>Stock actuel</h1>
-        <ul class="stock-list" id="stock-update-list"></ul>
+      <h2>Stock actuel</h2>
+      <ul class="stock-list" id="stock-update-list"></ul>
     </div>
     <div class="history-section">
       <div class="history-header">
@@ -431,371 +326,57 @@
           <button class="reset-history-btn" onclick="resetHistory()">Réinitialiser</button>
         </div>
       </div>
-      <div id="history-content">
-    <button id="copy-history-btn" class="copy-history-btn" style="display: none;">📋 Copier l'historique</button>
-
-        <ul id="command-history-list" class="history-list hidden">
-        </ul>
-      </div>
+      <button id="copy-history-btn" style="display:none">📋 Copier l'historique</button>
+      <ul id="command-history-list" class="history-list hidden"></ul>
     </div>
   </div>
-
   <script>
-    const articles = [
-      { id: 'frites', name: 'Frites', price: 5, stock: -1 },
-      { id: 'saucisse', name: 'Saucisse pain', price: 6, stock: -1 },
-      { id: 'saucisse_frites', name: 'Saucisse frites', price: 10, stock: -1 },
-      { id: 'roastbeef', name: 'Roastbeef frites', price: 22, stock: 10 },
-      { id: 'crepe_jambon', name: 'Crêpe jambon', price: 6, stock: -1 },
-      { id: 'crepe_jambon_fromage', name: 'Crêpe jambon + fromage', price: 7, stock: -1 },
-      { id: 'crepe_sucre', name: 'Crêpe sucre', price: 5, stock: -1 },
-      { id: 'crepe_confiture', name: 'Crêpe confiture', price: 5, stock: -1 }
-    ];
-
-    let cartItems = [];
-    let itemHistory = []; // Historique des ajouts au panier (pour le bouton "effacer dernier")
-    let commandHistory = JSON.parse(localStorage.getItem('commandHistory')) || []; // Historique des commandes payées
-    let total = 0;
-
-    function initializeArticleButtons() {
-      const container = document.getElementById('article-buttons');
-      container.innerHTML = '';
-      articles.forEach(article => {
-        const button = document.createElement('button');
-        button.className = 'article-button';
-
-        let cartItem = cartItems.find(ci => ci.articleId === article.id);
-        let qtyInCart = cartItem ? cartItem.quantity : 0;
-        let stockRestant = article.stock !== -1 ? article.stock - qtyInCart : Infinity;
-
-        button.textContent = `${article.name} ${article.price.toFixed(2)} .-`;
-
-        if (article.id === 'roastbeef' && article.stock >= 0) {
-          const badge = document.createElement('span');
-          badge.className = 'stock-badge';
-          badge.textContent = `Stock: ${stockRestant}`;
-          button.appendChild(badge);
-        }
-
-        if (stockRestant <= 0) {
-          button.disabled = true;
-          button.classList.add('out-of-stock');
-        }
-        button.onclick = () => addToCart(article);
-        container.appendChild(button);
-      });
-    }
-
-    function addToCart(article) {
-      let cartItem = cartItems.find(ci => ci.articleId === article.id);
-      let qtyInCart = cartItem ? cartItem.quantity : 0;
-      let stockRestant = article.stock !== -1 ? article.stock - qtyInCart : Infinity;
-
-      if (stockRestant <= 0) return;
-
-      if (cartItem) {
-        cartItem.quantity++;
-      } else {
-        cartItems.push({ articleId: article.id, quantity: 1, name: article.name, price: article.price });
-      }
-
-      itemHistory.push(article.id);
-      updateCart();
-      initializeArticleButtons();
-      initializeStockManagement();
-    }
-
-    function addConsigne() {
-      let cartItem = cartItems.find(ci => ci.articleId === '__consigne');
-      if (cartItem) {
-        cartItem.quantity++;
-      } else {
-        cartItems.push({ articleId: '__consigne', quantity: 1, customPrice: 2, name: 'Consigne' });
-      }
-      itemHistory.push('__consigne');
-      updateCart();
-    }
-
-    function removeConsigne() {
-      let cartItem = cartItems.find(ci => ci.articleId === '__rabais');
-      if (cartItem) {
-        cartItem.quantity++;
-      } else {
-        cartItems.push({ articleId: '__rabais', quantity: 1, customPrice: -2, name: 'Retour consigne' });
-      }
-      itemHistory.push('__rabais');
-      updateCart();
-    }
-
-    function removeLastArticle() {
-      if (!itemHistory.length) return;
-      const lastAddedId = itemHistory.pop();
-      const cartItem = cartItems.find(ci => ci.articleId === lastAddedId);
-
-      if (!cartItem) return;
-
-      cartItem.quantity--;
-      if (cartItem.quantity <= 0) {
-        cartItems.splice(cartItems.findIndex(x => x.articleId === lastAddedId), 1);
-      }
-      updateCart();
-      initializeArticleButtons();
-      initializeStockManagement();
-    }
-
-    function clearCart() {
-      cartItems = [];
-      itemHistory = [];
-      updateCart();
-      initializeArticleButtons();
-      initializeStockManagement();
-    }
-
-    function updateCart() {
-      const ul = document.getElementById('panier-list');
-      ul.innerHTML = '';
-      total = 0;
-
+    const articles = [{ id: 'frites', name: 'Frites', price: 5, stock: -1 }, { id: 'saucisse', name: 'Saucisse pain', price: 6, stock: -1 }, { id: 'saucisse_frites', name: 'Saucisse frites', price: 10, stock: -1 }, { id: 'roastbeef', name: 'Roastbeef frites', price: 22, stock: 10 }, { id: 'crepe_jambon', name: 'Crêpe jambon', price: 6, stock: -1 }, { id: 'crepe_jambon_fromage', name: 'Crêpe jambon+fromage', price: 7, stock: -1 }, { id: 'crepe_sucre', name: 'Crêpe sucre', price: 5, stock: -1 }, { id: 'crepe_confiture', name: 'Crêpe confiture', price: 5, stock: -1 }];
+    let cartItems = [], itemHistory = [], commandHistory = JSON.parse(localStorage.getItem('commandHistory')) || [], total = 0;
+    const $ = id => document.getElementById(id);
+    function initializeArticleButtons() { const c = $('article-buttons'); c.innerHTML = ''; articles.forEach(a => { const b = document.createElement('button'); b.className = 'article-button'; const i = cartItems.find(x => x.articleId === a.id); const q = i ? i.quantity : 0; const s = a.stock !== -1 ? a.stock - q : Infinity; b.textContent = `${a.name} ${a.price.toFixed(2)}.-`; if (a.id === 'roastbeef' && a.stock >= 0) { const badge = document.createElement('span'); badge.className = 'stock-badge'; badge.textContent = `Stock: ${s}`; b.appendChild(badge) } if (s <= 0) b.disabled = true; b.onclick = () => addToCart(a); c.appendChild(b); }) }
+    function addToCart(a) { const i = cartItems.find(x => x.articleId === a.id); const q = i ? i.quantity : 0; if (a.stock !== -1 && a.stock - q <= 0) return; i ? i.quantity++ : cartItems.push({ articleId: a.id, quantity: 1, name: a.name, price: a.price }); itemHistory.push(a.id); updateCart(); initializeArticleButtons(); initializeStockManagement(); }
+    function modifyConsigne(id, p, name) { const i = cartItems.find(x => x.articleId === id); i ? i.quantity++ : cartItems.push({ articleId: id, quantity: 1, customPrice: p, name }); itemHistory.push(id); updateCart(); }
+    const addConsigne = () => modifyConsigne('__consigne', 2, 'Consigne');
+    const removeConsigne = () => modifyConsigne('__rabais', -2, 'Retour consigne');
+    function removeLastArticle() { if (!itemHistory.length) return; const id = itemHistory.pop(); const i = cartItems.find(x => x.articleId === id); if (!i) return; i.quantity--; if (i.quantity <= 0) cartItems = cartItems.filter(x => x.articleId !== id); updateCart(); initializeArticleButtons(); initializeStockManagement(); }
+    function removeItem(id) { const i = cartItems.find(x => x.articleId === id); if (!i) return; i.quantity--; if (i.quantity <= 0) cartItems = cartItems.filter(x => x.articleId !== id); updateCart(); initializeArticleButtons(); initializeStockManagement(); }
+    function clearCart() { cartItems = []; itemHistory = []; updateCart(); initializeArticleButtons(); initializeStockManagement(); }
+    function updateCart() { const ul = $('panier-list'); ul.innerHTML = ''; total = 0; if (!cartItems.length) { ul.innerHTML = '<li>Panier vide.</li>'; $('total-amount').textContent = '0.00.-'; return; } cartItems.forEach(ci => { const li = document.createElement('li'); const price = ci.customPrice ?? ci.price; const lineTotal = price * ci.quantity; li.innerHTML = `<span>${ci.name} x${ci.quantity}</span><span>${lineTotal.toFixed(2)}.- <span class="delete-item" onclick="removeItem('${ci.articleId}')">✕</span></span>`; total += lineTotal; ul.appendChild(li); }); $('total-amount').textContent = total.toFixed(2) + '.-'; }
+    function checkout() {
       if (cartItems.length === 0) {
-        ul.innerHTML = '<li>Panier vide.</li>';
-        document.getElementById('total-amount').textContent = '0.00 .-';
+        alert('Panier vide !');
         return;
       }
-
-      cartItems.forEach(cartItem => {
-        const li = document.createElement('li');
-        let lineTotal = 0;
-        let itemName = '';
-
-        if (cartItem.articleId === '__consigne') {
-          lineTotal = cartItem.customPrice * cartItem.quantity;
-          itemName = 'Consigne';
-        } else if (cartItem.articleId === '__rabais') {
-          lineTotal = cartItem.customPrice * cartItem.quantity;
-          itemName = 'Retour consigne';
-        } else {
-          const article = articles.find(x => x.id === cartItem.articleId);
-          lineTotal = article.price * cartItem.quantity;
-          itemName = article.name;
-        }
-
-        li.innerHTML = `<span>${itemName} x${cartItem.quantity}</span><span>${lineTotal.toFixed(2)} .-</span>`;
-        total += lineTotal;
-        ul.appendChild(li);
-      });
-      document.getElementById('total-amount').textContent = total.toFixed(2) + ' .-';
-    }
-
-function checkout() {
-  if (total === 0) {
-    alert("Panier vide !");
-    return;
-  }
-
-  // — 1. Mettre à jour le stock Roastbeef
-  const roastbeefArticle = articles.find(a => a.id === 'roastbeef');
-  const roastbeefInCart  = cartItems.find(i => i.articleId === 'roastbeef');
-  if (roastbeefArticle && roastbeefInCart) {
-    roastbeefArticle.stock -= roastbeefInCart.quantity;
-    if (roastbeefArticle.stock < 0) roastbeefArticle.stock = 0;
-  }
-
-  saveStocks();             
-  alert(`Commande payée pour ${total.toFixed(2)} .-`);
-
-
-      // Enregistrer la commande dans l'historique
-      const now = new Date();
-      const command = {
-        date: now.toLocaleDateString('fr-CH'),
-        time: now.toLocaleTimeString('fr-CH', { hour: '2-digit', minute: '2-digit' }),
-        items: cartItems.map(item => {
-          const articleInfo = articles.find(a => a.id === item.articleId);
-          return {
-            name: item.name || (articleInfo ? articleInfo.name : ''),
-            quantity: item.quantity,
-            price: item.customPrice !== undefined ? item.customPrice : (articleInfo ? articleInfo.price : 0)
-          };
-        }),
-        total: total,
-        given: total, // Assuming exact payment for 'Payer' button
-        change: 0,    // No change for 'Payer' button
+      const roast = articles.find(a => a.id === 'roastbeef');
+      const inCart = cartItems.find(i => i.articleId === 'roastbeef');
+      if (roast && inCart) roast.stock = Math.max(0, roast.stock - inCart.quantity);
+      saveStocks();
+      alert(`Commande payée pour ${total.toFixed(2)}.-`);
+      commandHistory.push({
+        date: new Date().toLocaleDateString('fr-CH'),
+        time: new Date().toLocaleTimeString('fr-CH', { hour: '2-digit', minute: '2-digit' }),
+        items: cartItems.map(i => ({ name: i.name, quantity: i.quantity, price: i.customPrice ?? i.price })),
+        total,
         type: 'payment'
-      };
-      commandHistory.push(command);
+      });
       localStorage.setItem('commandHistory', JSON.stringify(commandHistory));
-      renderCommandHistory(); // Mettre à jour l'affichage de l'historique
-
+      renderCommandHistory();
       clearCart();
-      initializeArticleButtons(); // Re-render buttons to reflect updated stock
-      initializeStockManagement(); // Re-render stock management to reflect updated stock
-    }
-
-    function calculateChange() {
-      if (total === 0) {
-        alert("Le panier est vide. Il n'y a pas de monnaie à calculer.");
-        return;
-      }
-
-      let given = prompt(`Total à payer : ${total.toFixed(2)} .-\nMontant donné par le client ?`);
-      if (given === null) { // User clicked cancel
-        return;
-      }
-
-      given = parseFloat(given);
-      if (isNaN(given) || given < total) {
-        alert("Montant invalide ou insuffisant.");
-        return;
-      }
-
-      const change = given - total;
-      alert(`Montant donné : ${given.toFixed(2)} .-\nMonnaie à rendre : ${change.toFixed(2)} .-`);
-
-      // Removed the part that records this action to commandHistory
-      // Also removed the clearCart() call from here
-    }
-
-
-    function initializeStockManagement() {
-      const ul = document.getElementById('stock-update-list');
-      ul.innerHTML = '';
-      const roastbeefArticle = articles.find(x => x.id === 'roastbeef');
-      const li = document.createElement('li');
-      li.innerHTML = `
-        <span>${roastbeefArticle.name}</span>
-        <input type="number" id="roast-stock" value="${roastbeefArticle.stock}" min="0"/>
-        <button onclick="updateRoastStock()">Maj</button>`;
-      ul.appendChild(li);
-    }
-
-    function updateRoastStock() {
-      const roastbeefArticle = articles.find(x => x.id === 'roastbeef');
-      const value = parseInt(document.getElementById('roast-stock').value);
-      if (!isNaN(value) && value >= 0) {
-        roastbeefArticle.stock = value;
-        saveStocks();
-      }
       initializeArticleButtons();
       initializeStockManagement();
     }
 
- function loadStocks() {
-  const saved = JSON.parse(localStorage.getItem('articleStocks') || '{}');
-  articles.forEach(a => {
-    if (saved[a.id] !== undefined && a.stock !== -1) {
-      a.stock = saved[a.id];
-    }
-  });
-}
-
-function saveStocks() {
-  const snapshot = {};
-  articles.forEach(a => {
-    if (a.stock !== -1) snapshot[a.id] = a.stock;
-  });
-  localStorage.setItem('articleStocks', JSON.stringify(snapshot));
-}
-
-
-
-    function renderCommandHistory() {
-      const historyList = document.getElementById('command-history-list');
-      historyList.innerHTML = '';
-
-      if (commandHistory.length === 0) {
-        historyList.innerHTML = '<p style="text-align: center; color: #666;">Aucune commande historique.</p>';
-        return;
-      }
-
-      commandHistory.slice().reverse().forEach(command => { // Afficher les plus récentes en premier
-        const card = document.createElement('div');
-        card.className = 'history-card';
-
-        let itemsHtml = '<ul>';
-        command.items.forEach(item => {
-          itemsHtml += `<li>${item.name} x${item.quantity} (${(item.price * item.quantity).toFixed(2)} .-)</li>`;
-        });
-        itemsHtml += '</ul>';
-
-        let totalDisplay = '';
-        if (command.type === 'payment') {
-          totalDisplay = `
-                <div class="total-history">Total payé: ${command.total.toFixed(2)} .-</div>
-            `;
-        } else if (command.type === 'changeCalculation') {
-          // This part should technically not be reached if `calculateChange` doesn't log
-          // However, existing history entries of type 'changeCalculation' will still be displayed correctly.
-          totalDisplay = `
-                <div class="total-history" style="color: #337ab7;">Total commande: ${command.total.toFixed(2)} .-</div>
-                <div class="total-history" style="font-size: 0.9em; color: #6c757d;">Montant donné: ${command.given.toFixed(2)} .-</div>
-                <div class="total-history" style="font-size: 0.9em; color: #28a745;">Monnaie à rendre: ${command.change.toFixed(2)} .-</div>
-            `;
-        }
-
-
-        card.innerHTML = `
-          <strong>${command.date} ${command.time}</strong>
-          ${itemsHtml}
-          ${totalDisplay}
-        `;
-        historyList.appendChild(card);
-      });
-    }
-
-    function toggleHistory() {
-      const historyList = document.getElementById('command-history-list');
-      const toggleBtn = document.getElementById('toggle-history-btn');
-      const copyBtn = document.getElementById('copy-history-btn');
-
-      const isHidden = historyList.classList.contains('hidden');
-      historyList.classList.toggle('hidden');
-
-      if (isHidden) {
-        toggleBtn.textContent = '−'; // Affiché
-        copyBtn.style.display = 'inline-block';
-      } else {
-        toggleBtn.textContent = '+'; // Caché
-        copyBtn.style.display = 'none';
-      }
-    }
-
-
-    function resetHistory() {
-      if (confirm("Êtes-vous sûr de vouloir supprimer tout l'historique des commandes ?")) {
-        commandHistory = [];
-        localStorage.removeItem('commandHistory');
-        renderCommandHistory();
-        
-      }
-    }
-
-document.getElementById('copy-history-btn').addEventListener('click', () => {
-  const list = document.getElementById('command-history-list');
-  const cards = list.querySelectorAll('.history-card');
-
-  let text = '';
-  cards.forEach(card => {
-    const date = card.querySelector('strong')?.textContent ?? '';
-    const items = Array.from(card.querySelectorAll('li')).map(li => li.textContent).join('\n');
-    const total = card.querySelector('.total-history')?.textContent ?? '';
-    text += `${date}\n${items}\n${total}\n\n`;
-  });
-
-  navigator.clipboard.writeText(text).then(() => {
-    alert("Historique copié dans le presse-papiers !");
-  }).catch(() => {
-    alert("Échec de la copie.");
-  });
-});
-
-    document.addEventListener('DOMContentLoaded', () => {
-  loadStocks();                    // <-- nouvelle ligne
-  initializeArticleButtons();
-  initializeStockManagement();
-  updateCart();
-  renderCommandHistory();
-});
-
+    function calculateChange() { if (!total) { alert('Le panier est vide.'); return; } const g = parseFloat(prompt(`Total: ${total.toFixed(2)}.-\nMontant donné ?`) || ''); if (isNaN(g) || g < total) { alert('Montant invalide.'); return; } alert(`Monnaie à rendre : ${(g - total).toFixed(2)}.-`); }
+    function initializeStockManagement() { const ul = $('stock-update-list'); ul.innerHTML = ''; const roast = articles.find(a => a.id === 'roastbeef'); ul.innerHTML = `<li><span>${roast.name}</span><input type="number" id="roast-stock" value="${roast.stock}" min="0"><button onclick="updateRoastStock()">Maj</button></li>`; }
+    function updateRoastStock() { const roast = articles.find(a => a.id === 'roastbeef'); const v = parseInt($('roast-stock').value); if (!isNaN(v) && v >= 0) { roast.stock = v; saveStocks(); } initializeArticleButtons(); initializeStockManagement(); }
+    function loadStocks() { const s = JSON.parse(localStorage.getItem('articleStocks') || '{}'); articles.forEach(a => { if (s[a.id] !== undefined && a.stock !== -1) a.stock = s[a.id]; }); }
+    function saveStocks() { const snap = {}; articles.forEach(a => { if (a.stock !== -1) snap[a.id] = a.stock; }); localStorage.setItem('articleStocks', JSON.stringify(snap)); }
+    function renderCommandHistory() { const list = $('command-history-list'); list.innerHTML = ''; if (!commandHistory.length) { list.innerHTML = '<p style="text-align:center;color:#666">Aucune commande.</p>'; return; } commandHistory.slice().reverse().forEach(c => { const card = document.createElement('div'); card.className = 'history-card'; let items = '<ul>'; c.items.forEach(i => items += `<li>${i.name} x${i.quantity} (${(i.price * i.quantity).toFixed(2)}.-)</li>`); items += '</ul>'; card.innerHTML = `<strong>${c.date} ${c.time}</strong>${items}<div class="total-history">Total payé: ${c.total.toFixed(2)}.-</div>`; list.appendChild(card); }); }
+    function toggleHistory() { const list = $('command-history-list'); const btn = $('toggle-history-btn'); const copy = $('copy-history-btn'); list.classList.toggle('hidden'); const h = list.classList.contains('hidden'); btn.textContent = h ? '+' : '−'; copy.style.display = h ? 'none' : 'inline-block'; }
+    function resetHistory() { if (confirm('Supprimer l\'historique ?')) { commandHistory = []; localStorage.removeItem('commandHistory'); renderCommandHistory(); } }
+    $('copy-history-btn').addEventListener('click', () => { const cards = $('command-history-list').querySelectorAll('.history-card'); let txt = ''; cards.forEach(card => { txt += `${card.querySelector('strong').textContent}\n${Array.from(card.querySelectorAll('li')).map(li => li.textContent).join('\n')}\n${card.querySelector('.total-history').textContent}\n\n`; }); navigator.clipboard.writeText(txt).then(() => alert('Historique copié !')); });
+    addEventListener('DOMContentLoaded', () => { loadStocks(); initializeArticleButtons(); initializeStockManagement(); updateCart(); renderCommandHistory(); });
   </script>
 </body>
 
