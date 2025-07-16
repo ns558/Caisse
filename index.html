@@ -27,21 +27,29 @@
     h2 {
       font-size: 1.2rem;
       color: #2980b9;
-      margin: 0 0 20px
+      margin: 0 0 5px
     }
 
-    .articles,
-    .consigne-buttons,
-    .buttons {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 15px;
-      margin-bottom: 15px
-    }
+/* Grille commune */
+.articles,
+.consigne-buttons,
+.buttons {
+  display: grid;
+  gap: 15px;
+  margin-bottom: 15px;
+}
 
-    .buttons {
-      grid-template-columns: 1fr 1fr
-    }
+/* Trois colonnes pour .articles */
+.articles {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+/* Deux colonnes pour les autres (comme avant) */
+.consigne-buttons,
+.buttons {
+  grid-template-columns: repeat(2, 1fr);
+}
+
 
     .article-button,
     .consigne-button,
@@ -119,9 +127,8 @@
     .checkout-buttons {
       display: flex;
       gap: 10px;
-      margin-top: 20px
+      margin-top: 20px;
     }
-
     .checkout,
     .payment-help {
       flex: 1;
@@ -129,18 +136,18 @@
       border: none;
       border-radius: 8px;
       font-size: 1.2rem;
-      color: #fff;
       cursor: pointer;
-      transition: background .2s
-    }
-
-    .checkout {
-      background: #2ecc71
+      transition: background .2s;
+      background: #0dc56c;
+      /* <-- couleur de fond */
+      color: #ffffff;
+      /* couleur du texte */
     }
 
     .checkout:hover {
-      background: #27ae60
+      background: #0dc54d;
     }
+
 
     .payment-help {
       background: #9b59b6
@@ -290,13 +297,68 @@
     #copy-history-btn:hover {
       background: #2980b9
     }
+
+    .article-section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 1.1rem;
+      color: #2980b9;
+      margin-top: 15px;
+      /* Reduced margin */
+      margin-bottom: 10px;
+      /* Reduced margin */
+      padding-top: 10px;
+      /* Reduced padding */
+      border-top: 1px solid #eee;
+    }
+
+    .toggle-section-btn {
+      background: #4982ed;
+      color: #fff;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 1rem;
+      width: 35px;
+      height: 35px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .toggle-section-btn:hover {
+      background: #302188;
+    }
+
+    .articles.hidden {
+      display: none;
+      margin-bottom: 0;
+      /* Remove margin when hidden */
+    }
+
+    .articles {
+      margin-bottom: 10px;
+      /* Adjust margin when visible */
+    }
   </style>
 </head>
 
 <body>
   <div class="container">
     <h1>Commande</h1>
-    <div class="articles" id="article-buttons"></div>
+    <h2 class="article-section-header">
+      Nourriture
+      <button class="toggle-section-btn" onclick="toggleSection('food-article-buttons')">+</button>
+    </h2>
+    <div class="articles hidden" id="food-article-buttons"></div>
+    <h2 class="article-section-header">
+      Boissons
+      <button class="toggle-section-btn" onclick="toggleSection('drink-article-buttons')">+</button>
+    </h2>
+    <div class="articles hidden" id="drink-article-buttons"></div>
+    <hr style="border: 0; height: 1px; background: #eee; margin: 5px 0;">
     <div class="consigne-buttons">
       <button onclick="addConsigne()" class="consigne-button">Consigne +2.-</button>
       <button onclick="removeConsigne()" class="consigne-button">Consigne -2.-</button>
@@ -331,18 +393,124 @@
     </div>
   </div>
   <script>
-    const articles = [{ id: 'frites', name: 'Frites', price: 5, stock: -1 }, { id: 'saucisse', name: 'Saucisse pain', price: 6, stock: -1 }, { id: 'saucisse_frites', name: 'Saucisse frites', price: 10, stock: -1 }, { id: 'roastbeef', name: 'Roastbeef frites', price: 22, stock: 10 }, { id: 'crepe_jambon', name: 'Crêpe jambon', price: 6, stock: -1 }, { id: 'crepe_jambon_fromage', name: 'Crêpe jambon+fromage', price: 7, stock: -1 }, { id: 'crepe_sucre', name: 'Crêpe sucre', price: 5, stock: -1 }, { id: 'crepe_confiture', name: 'Crêpe confiture', price: 5, stock: -1 }];
+    const articles = [
+      { id: 'frites', name: 'Frites', price: 5, stock: -1, type: 'food' },
+      { id: 'saucisse', name: 'Saucisse pain', price: 6, stock: -1, type: 'food' },
+      { id: 'saucisse_frites', name: 'Saucisse frites', price: 10, stock: -1, type: 'food' },
+      { id: 'roastbeef', name: 'Roastbeef frites', price: 22, stock: 10, type: 'food' },
+      { id: 'crepe_jambon', name: 'Crêpe jambon', price: 6, stock: -1, type: 'food' },
+      { id: 'crepe_jambon_fromage', name: 'Crêpe jambon+fromage', price: 7, stock: -1, type: 'food' },
+      { id: 'crepe_sucre', name: 'Crêpe sucre', price: 5, stock: -1, type: 'food' },
+      { id: 'crepe_confiture', name: 'Crêpe confiture', price: 5, stock: -1, type: 'food' },
+      { id: 'coke', name: 'Coca-Cola', price: 3, stock: -1, type: 'drink' },
+      { id: 'sprite', name: 'Sprite', price: 3, stock: -1, type: 'drink' },
+      { id: 'water', name: 'Eau', price: 2, stock: -1, type: 'drink' },
+      { id: 'beer', name: 'Bière', price: 4, stock: -1, type: 'drink' }
+    ];
     let cartItems = [], itemHistory = [], commandHistory = JSON.parse(localStorage.getItem('commandHistory')) || [], total = 0;
     const $ = id => document.getElementById(id);
-    function initializeArticleButtons() { const c = $('article-buttons'); c.innerHTML = ''; articles.forEach(a => { const b = document.createElement('button'); b.className = 'article-button'; const i = cartItems.find(x => x.articleId === a.id); const q = i ? i.quantity : 0; const s = a.stock !== -1 ? a.stock - q : Infinity; b.textContent = `${a.name} ${a.price.toFixed(2)}.-`; if (a.id === 'roastbeef' && a.stock >= 0) { const badge = document.createElement('span'); badge.className = 'stock-badge'; badge.textContent = `Stock: ${s}`; b.appendChild(badge) } if (s <= 0) b.disabled = true; b.onclick = () => addToCart(a); c.appendChild(b); }) }
-    function addToCart(a) { const i = cartItems.find(x => x.articleId === a.id); const q = i ? i.quantity : 0; if (a.stock !== -1 && a.stock - q <= 0) return; i ? i.quantity++ : cartItems.push({ articleId: a.id, quantity: 1, name: a.name, price: a.price }); itemHistory.push(a.id); updateCart(); initializeArticleButtons(); initializeStockManagement(); }
-    function modifyConsigne(id, p, name) { const i = cartItems.find(x => x.articleId === id); i ? i.quantity++ : cartItems.push({ articleId: id, quantity: 1, customPrice: p, name }); itemHistory.push(id); updateCart(); }
+
+    function initializeArticleButtons() {
+      const foodContainer = $('food-article-buttons');
+      const drinkContainer = $('drink-article-buttons');
+      foodContainer.innerHTML = '';
+      drinkContainer.innerHTML = '';
+
+      articles.forEach(a => {
+        const b = document.createElement('button');
+        b.className = 'article-button';
+        const i = cartItems.find(x => x.articleId === a.id);
+        const q = i ? i.quantity : 0;
+        const s = a.stock !== -1 ? a.stock - q : Infinity;
+        b.textContent = `${a.name} ${a.price.toFixed(2)}.-`;
+
+        if (a.id === 'roastbeef' && a.stock >= 0) {
+          const badge = document.createElement('span');
+          badge.className = 'stock-badge';
+          badge.textContent = `Stock: ${s}`;
+          b.appendChild(badge);
+        }
+        if (s <= 0) b.disabled = true;
+        b.onclick = () => addToCart(a);
+
+        if (a.type === 'food') {
+          foodContainer.appendChild(b);
+        } else if (a.type === 'drink') {
+          drinkContainer.appendChild(b);
+        }
+      });
+    }
+
+    function addToCart(a) {
+      const i = cartItems.find(x => x.articleId === a.id);
+      const q = i ? i.quantity : 0;
+      if (a.stock !== -1 && a.stock - q <= 0) return;
+      i ? i.quantity++ : cartItems.push({ articleId: a.id, quantity: 1, name: a.name, price: a.price });
+      itemHistory.push(a.id);
+      updateCart();
+      initializeArticleButtons();
+      initializeStockManagement();
+    }
+
+    function modifyConsigne(id, p, name) {
+      const i = cartItems.find(x => x.articleId === id);
+      i ? i.quantity++ : cartItems.push({ articleId: id, quantity: 1, customPrice: p, name });
+      itemHistory.push(id);
+      updateCart();
+    }
     const addConsigne = () => modifyConsigne('__consigne', 2, 'Consigne');
     const removeConsigne = () => modifyConsigne('__rabais', -2, 'Retour consigne');
-    function removeLastArticle() { if (!itemHistory.length) return; const id = itemHistory.pop(); const i = cartItems.find(x => x.articleId === id); if (!i) return; i.quantity--; if (i.quantity <= 0) cartItems = cartItems.filter(x => x.articleId !== id); updateCart(); initializeArticleButtons(); initializeStockManagement(); }
-    function removeItem(id) { const i = cartItems.find(x => x.articleId === id); if (!i) return; i.quantity--; if (i.quantity <= 0) cartItems = cartItems.filter(x => x.articleId !== id); updateCart(); initializeArticleButtons(); initializeStockManagement(); }
-    function clearCart() { cartItems = []; itemHistory = []; updateCart(); initializeArticleButtons(); initializeStockManagement(); }
-    function updateCart() { const ul = $('panier-list'); ul.innerHTML = ''; total = 0; if (!cartItems.length) { ul.innerHTML = '<li>Panier vide.</li>'; $('total-amount').textContent = '0.00.-'; return; } cartItems.forEach(ci => { const li = document.createElement('li'); const price = ci.customPrice ?? ci.price; const lineTotal = price * ci.quantity; li.innerHTML = `<span>${ci.name} x${ci.quantity}</span><span>${lineTotal.toFixed(2)}.- <span class="delete-item" onclick="removeItem('${ci.articleId}')">✕</span></span>`; total += lineTotal; ul.appendChild(li); }); $('total-amount').textContent = total.toFixed(2) + '.-'; }
+
+    function removeLastArticle() {
+      if (!itemHistory.length) return;
+      const id = itemHistory.pop();
+      const i = cartItems.find(x => x.articleId === id);
+      if (!i) return;
+      i.quantity--;
+      if (i.quantity <= 0) cartItems = cartItems.filter(x => x.articleId !== id);
+      updateCart();
+      initializeArticleButtons();
+      initializeStockManagement();
+    }
+
+    function removeItem(id) {
+      const i = cartItems.find(x => x.articleId === id);
+      if (!i) return;
+      i.quantity--;
+      if (i.quantity <= 0) cartItems = cartItems.filter(x => x.articleId !== id);
+      updateCart();
+      initializeArticleButtons();
+      initializeStockManagement();
+    }
+
+    function clearCart() {
+      cartItems = [];
+      itemHistory = [];
+      updateCart();
+      initializeArticleButtons();
+      initializeStockManagement();
+    }
+
+    function updateCart() {
+      const ul = $('panier-list');
+      ul.innerHTML = '';
+      total = 0;
+      if (!cartItems.length) {
+        ul.innerHTML = '<li>Panier vide.</li>';
+        $('total-amount').textContent = '0.00.-';
+        return;
+      }
+      cartItems.forEach(ci => {
+        const li = document.createElement('li');
+        const price = ci.customPrice ?? ci.price;
+        const lineTotal = price * ci.quantity;
+        li.innerHTML = `<span>${ci.name} x${ci.quantity}</span><span>${lineTotal.toFixed(2)}.- <span class="delete-item" onclick="removeItem('${ci.articleId}')">✕</span></span>`;
+        total += lineTotal;
+        ul.appendChild(li);
+      });
+      $('total-amount').textContent = total.toFixed(2) + '.-';
+    }
+
     function checkout() {
       if (cartItems.length === 0) {
         alert('Panier vide !');
@@ -367,16 +535,115 @@
       initializeStockManagement();
     }
 
-    function calculateChange() { if (!total) { alert('Le panier est vide.'); return; } const g = parseFloat(prompt(`Total: ${total.toFixed(2)}.-\nMontant donné ?`) || ''); if (isNaN(g) || g < total) { alert('Montant invalide.'); return; } alert(`Monnaie à rendre : ${(g - total).toFixed(2)}.-`); }
-    function initializeStockManagement() { const ul = $('stock-update-list'); ul.innerHTML = ''; const roast = articles.find(a => a.id === 'roastbeef'); ul.innerHTML = `<li><span>${roast.name}</span><input type="number" id="roast-stock" value="${roast.stock}" min="0"><button onclick="updateRoastStock()">Maj</button></li>`; }
-    function updateRoastStock() { const roast = articles.find(a => a.id === 'roastbeef'); const v = parseInt($('roast-stock').value); if (!isNaN(v) && v >= 0) { roast.stock = v; saveStocks(); } initializeArticleButtons(); initializeStockManagement(); }
-    function loadStocks() { const s = JSON.parse(localStorage.getItem('articleStocks') || '{}'); articles.forEach(a => { if (s[a.id] !== undefined && a.stock !== -1) a.stock = s[a.id]; }); }
-    function saveStocks() { const snap = {}; articles.forEach(a => { if (a.stock !== -1) snap[a.id] = a.stock; }); localStorage.setItem('articleStocks', JSON.stringify(snap)); }
-    function renderCommandHistory() { const list = $('command-history-list'); list.innerHTML = ''; if (!commandHistory.length) { list.innerHTML = '<p style="text-align:center;color:#666">Aucune commande.</p>'; return; } commandHistory.slice().reverse().forEach(c => { const card = document.createElement('div'); card.className = 'history-card'; let items = '<ul>'; c.items.forEach(i => items += `<li>${i.name} x${i.quantity} (${(i.price * i.quantity).toFixed(2)}.-)</li>`); items += '</ul>'; card.innerHTML = `<strong>${c.date} ${c.time}</strong>${items}<div class="total-history">Total payé: ${c.total.toFixed(2)}.-</div>`; list.appendChild(card); }); }
-    function toggleHistory() { const list = $('command-history-list'); const btn = $('toggle-history-btn'); const copy = $('copy-history-btn'); list.classList.toggle('hidden'); const h = list.classList.contains('hidden'); btn.textContent = h ? '+' : '−'; copy.style.display = h ? 'none' : 'inline-block'; }
-    function resetHistory() { if (confirm('Supprimer l\'historique ?')) { commandHistory = []; localStorage.removeItem('commandHistory'); renderCommandHistory(); } }
-    $('copy-history-btn').addEventListener('click', () => { const cards = $('command-history-list').querySelectorAll('.history-card'); let txt = ''; cards.forEach(card => { txt += `${card.querySelector('strong').textContent}\n${Array.from(card.querySelectorAll('li')).map(li => li.textContent).join('\n')}\n${card.querySelector('.total-history').textContent}\n\n`; }); navigator.clipboard.writeText(txt).then(() => alert('Historique copié !')); });
-    addEventListener('DOMContentLoaded', () => { loadStocks(); initializeArticleButtons(); initializeStockManagement(); updateCart(); renderCommandHistory(); });
+    function calculateChange() {
+      if (!total) {
+        alert('Le panier est vide.');
+        return;
+      }
+      const g = parseFloat(prompt(`Total: ${total.toFixed(2)}.-\nMontant donné ?`) || '');
+      if (isNaN(g) || g < total) {
+        alert('Montant invalide.');
+        return;
+      }
+      alert(`Monnaie à rendre : ${(g - total).toFixed(2)}.-`);
+    }
+
+    function initializeStockManagement() {
+      const ul = $('stock-update-list');
+      ul.innerHTML = '';
+      const roast = articles.find(a => a.id === 'roastbeef');
+      ul.innerHTML = `<li><span>${roast.name}</span><input type="number" id="roast-stock" value="${roast.stock}" min="0"><button onclick="updateRoastStock()">Maj</button></li>`;
+    }
+
+    function updateRoastStock() {
+      const roast = articles.find(a => a.id === 'roastbeef');
+      const v = parseInt($('roast-stock').value);
+      if (!isNaN(v) && v >= 0) {
+        roast.stock = v;
+        saveStocks();
+      }
+      initializeArticleButtons();
+      initializeStockManagement();
+    }
+
+    function loadStocks() {
+      const s = JSON.parse(localStorage.getItem('articleStocks') || '{}');
+      articles.forEach(a => {
+        if (s[a.id] !== undefined && a.stock !== -1) a.stock = s[a.id];
+      });
+    }
+
+    function saveStocks() {
+      const snap = {};
+      articles.forEach(a => {
+        if (a.stock !== -1) snap[a.id] = a.stock;
+      });
+      localStorage.setItem('articleStocks', JSON.stringify(snap));
+    }
+
+    function renderCommandHistory() {
+      const list = $('command-history-list');
+      list.innerHTML = '';
+      if (!commandHistory.length) {
+        list.innerHTML = '<p style="text-align:center;color:#666">Aucune commande.</p>';
+        return;
+      }
+      commandHistory.slice().reverse().forEach(c => {
+        const card = document.createElement('div');
+        card.className = 'history-card';
+        let items = '<ul>';
+        c.items.forEach(i => items += `<li>${i.name} x${i.quantity} (${(i.price * i.quantity).toFixed(2)}.-)</li>`);
+        items += '</ul>';
+        card.innerHTML = `<strong>${c.date} ${c.time}</strong>${items}<div class="total-history">Total payé: ${c.total.toFixed(2)}.-</div>`;
+        list.appendChild(card);
+      });
+    }
+
+    function toggleHistory() {
+      const list = $('command-history-list');
+      const btn = $('toggle-history-btn');
+      const copy = $('copy-history-btn');
+      list.classList.toggle('hidden');
+      const h = list.classList.contains('hidden');
+      btn.textContent = h ? '+' : '−';
+      copy.style.display = h ? 'none' : 'inline-block';
+    }
+
+    function toggleSection(sectionId) {
+      const section = $(sectionId);
+      const button = section.previousElementSibling.querySelector('.toggle-section-btn');
+      section.classList.toggle('hidden');
+      button.textContent = section.classList.contains('hidden') ? '+' : '−';
+    }
+
+    function resetHistory() {
+      if (confirm('Supprimer l\'historique ?')) {
+        commandHistory = [];
+        localStorage.removeItem('commandHistory');
+        renderCommandHistory();
+      }
+    }
+
+    $('copy-history-btn').addEventListener('click', () => {
+      const cards = $('command-history-list').querySelectorAll('.history-card');
+      let txt = '';
+      cards.forEach(card => {
+        txt += `${card.querySelector('strong').textContent}\n${Array.from(card.querySelectorAll('li')).map(li => li.textContent).join('\n')}\n${card.querySelector('.total-history').textContent}\n\n`;
+      });
+      navigator.clipboard.writeText(txt).then(() => alert('Historique copié !'));
+    });
+
+    addEventListener('DOMContentLoaded', () => {
+      loadStocks();
+      initializeArticleButtons();
+      initializeStockManagement();
+      updateCart();
+      renderCommandHistory();
+
+      // Initialize sections as collapsed by default
+      toggleSection('food-article-buttons');
+      toggleSection('drink-article-buttons');
+    });
   </script>
 </body>
 
